@@ -28,12 +28,13 @@ print("Hello World")
 
       const run = () => {
         Sk.pre = "output";
+        output.innerHTML = "";
 
         Sk.TurtleGraphics ||= {};
         Sk.TurtleGraphics.target = "visual";
 
         Sk.configure({
-          output: (text) => output.innerHTML = text,
+          output: (text) => output.innerHTML += text,
           read: readFile,
         });
 

@@ -29,13 +29,15 @@ print("Hello World")
 
       const main = async () => {
         pyodide = await loadPyodide({
-          stdout: (text) => output.innerHTML = text,
+          stdout: (text) => output.innerHTML += text + "\n",
           // TODO: should we use fullStdLib: true ?
         });
       };
       main();
 
       const run = () => {
+        output.innerHTML = "";
+
         try {
           pyodide.runPython(input.value);
         } catch (error) {
