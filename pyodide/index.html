@@ -12,6 +12,10 @@ print("Hello, World!")
 import random
 print("Random number: ", random.randint(1, 10))
 
+import numpy
+array =  numpy.array([1, 2, 3])
+print("Numpy: ", numpy.sin(array))
+
 #import turtle
 #t = turtle.Turtle()
 #t.forward(100)
@@ -41,7 +45,8 @@ print("Random number: ", random.randint(1, 10))
         output.innerHTML = "";
 
         try {
-          pyodide.runPython(input.value);
+          await pyodide.loadPackagesFromImports(input.value);
+          await pyodide.runPython(input.value);
         } catch (error) {
           console.log(error);
         }
