@@ -52,6 +52,13 @@ t.forward(100)
           await pyodide.loadPackage("./turtle/dist/turtle-0.0.1-py2.py3-none-any.whl");
           await pyodide.loadPackagesFromImports(input.value);
           await pyodide.runPython(input.value);
+          await pyodide.runPython(`
+            import turtle
+            from js import document
+
+            turtle.Screen().show_scene()
+            document.getElementById("visual").innerHTML = turtle.svg()
+          `);
         } catch (error) {
           console.log(error);
         }
