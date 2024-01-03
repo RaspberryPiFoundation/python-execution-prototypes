@@ -49,19 +49,28 @@ t.forward(100)
         output.innerHTML = "";
 
         try {
-          await pyodide.loadPackage("./turtle/dist/turtle-0.0.1-py2.py3-none-any.whl");
-          await pyodide.loadPackagesFromImports(input.value);
-          await pyodide.runPython(input.value);
-          await pyodide.runPython(`
-            import turtle
-            from js import document
-
-            turtle.Screen().show_scene()
-            document.getElementById("visual").innerHTML = turtle.svg()
-          `);
+          await withTurtleSupport(async () => {
+            await pyodide.loadPackagesFromImports(input.value);
+            await pyodide.runPython(input.value);
+          });
         } catch (error) {
           console.log(error);
         }
+      };
+
+      const withTurtleSupport = async (runPythonFn) => {
+        const turtleNeeded = input.value.includes("import turtle");
+        if (!turtleNeeded) { return runPythonFn(); }
+
+        await pyodide.loadPackage("./turtle/dist/turtle-0.0.1-py2.py3-none-any.whl");
+        await runPythonFn();
+        await pyodide.runPython(`
+          import turtle
+          from js import document
+
+          turtle.Screen().show_scene()
+          document.getElementById("visual").innerHTML = turtle.svg()
+        `);
       };
     </script>
   </body>
