@@ -22,12 +22,13 @@ print("Numpy: ", numpy.sin(array))
     </textarea>
 
     <br/>
-    <button onclick="run()">Run</button>
+    <button id="run" onclick="run()" disabled>Run</button>
 
-    <pre id="output"></pre>
+    <pre id="output">Loading pyodide...</pre>
     <div id="visual"></div>
 
     <script type="text/javascript">
+      const runButton = document.getElementById("run");
       const input = document.getElementById("input");
       const output = document.getElementById("output");
 
@@ -38,10 +39,13 @@ print("Numpy: ", numpy.sin(array))
           stdout: (text) => output.innerHTML += text + "\n",
           // TODO: should we use fullStdLib: true ?
         });
+
+        runButton.disabled = false;
+        output.innerHTML = "";
       };
       main();
 
-      const run = () => {
+      const run = async () => {
         output.innerHTML = "";
 
         try {
