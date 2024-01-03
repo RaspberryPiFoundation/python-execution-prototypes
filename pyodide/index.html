@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Pyodide</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+  </head>
+  <body>
+    <textarea id="input" cols="40" rows="10">
+#import turtle
+#
+#t = turtle.Turtle()
+#t.forward(100)
+
+print("Hello World")
+    </textarea>
+
+    <br/>
+    <button onclick="run()">Run</button>
+
+    <pre id="output"></pre>
+    <div id="visual"></div>
+
+    <script type="text/javascript">
+      const input = document.getElementById("input");
+      const output = document.getElementById("output");
+
+      let pyodide;
+
+      const main = async () => {
+        pyodide = await loadPyodide({
+          stdout: (text) => output.innerHTML = text,
+          // TODO: should we use fullStdLib: true ?
+        });
+      };
+      main();
+
+      const run = () => {
+        try {
+          pyodide.runPython(input.value);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    </script>
+  </body>
+</html>
