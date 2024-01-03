@@ -13,6 +13,10 @@ print("Hello, World!")
 import random
 print("Random number: ", random.randint(1, 10))
 
+import numpy
+array =  numpy.array([1, 2, 3])
+print("Numpy: ", numpy.sin(array))
+
 import turtle
 t = turtle.Turtle()
 t.forward(100)
@@ -44,12 +48,26 @@ t.forward(100)
           .then(() => console.log("success"), (error) => console.log(error.toString()))
       }
 
-      const readFile = (x) => {
-        if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) {
+      const externalLibs = {
+        './numpy/__init__.js': {
+          path: './numpy/__init__.js'
+        },
+        'numpy.random': {
+          path: './numpy/random/__init__.js'
+        }
+      };
+
+      const readFile = (filename) => {
+        if (filename in externalLibs) {
+          console.log(filename);
+          return Sk.misceval.promiseToSuspension(fetch(externalLibs[filename].path).then(r => r.text()));
+        }
+
+        if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][filename] === undefined) {
           throw "File not found: '" + x + "'";
         }
 
-        return Sk.builtinFiles["files"][x];
+        return Sk.builtinFiles["files"][filename];
       }
     </script>
   </body>
