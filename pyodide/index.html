@@ -16,9 +16,9 @@ import numpy
 array =  numpy.array([1, 2, 3])
 print("Numpy: ", numpy.sin(array))
 
-#import turtle
-#t = turtle.Turtle()
-#t.forward(100)
+import turtle
+t = turtle.Turtle()
+t.forward(100)
     </textarea>
 
     <br/>
@@ -49,6 +49,7 @@ print("Numpy: ", numpy.sin(array))
         output.innerHTML = "";
 
         try {
+          await pyodide.loadPackage("./turtle/dist/turtle-0.0.1-py2.py3-none-any.whl");
           await pyodide.loadPackagesFromImports(input.value);
           await pyodide.runPython(input.value);
         } catch (error) {
