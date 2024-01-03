@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Skulpt</title>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.min.js"></script>
+  </head>
+  <body>
+    <textarea id="input" cols="40" rows="10">
+import turtle
+
+t = turtle.Turtle()
+t.forward(100)
+
+print("Hello World")
+    </textarea>
+
+    <br/>
+    <button onclick="run()">Run</button>
+
+    <pre id="output"></pre>
+    <div id="visual"></div>
+
+    <script type="text/javascript">
+      const input = document.getElementById("input");
+      const output = document.getElementById("output");
+
+      const run = () => {
+        Sk.pre = "output";
+
+        Sk.TurtleGraphics ||= {};
+        Sk.TurtleGraphics.target = "visual";
+
+        Sk.configure({
+          output: (text) => output.innerHTML = text,
+          read: readFile,
+        });
+
+        Sk.misceval.asyncToPromise(() => Sk.importMainWithBody("<stdin>", false, input.value, true))
+          .then(() => console.log("success"), (error) => console.log(error.toString()))
+      }
+
+      const readFile = (x) => {
+        if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined) {
+          throw "File not found: '" + x + "'";
+        }
+
+        return Sk.builtinFiles["files"][x];
+      }
+    </script>
+  </body>
+</html>
