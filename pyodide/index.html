@@ -27,12 +27,13 @@ import p5
     <button id="run" onclick="run()" disabled>Run</button>
 
     <pre id="output">Loading pyodide...</pre>
-    <div id="visual"></div>
+    <div id="visual" style="width: fit-content;"></div>
 
     <script type="text/javascript">
       const runButton = document.getElementById("run");
       const input = document.getElementById("input");
       const output = document.getElementById("output");
+      const visual = document.getElementById("visual");
 
       let pyodide;
 
@@ -96,11 +97,15 @@ import p5
 
       const fakeBasthonPackage = {
         kernel: {
-          display_event: (node) => console.log(node),
-          locals: () => ({
-            get: () => null,
-            keys: () => [],
-          }),
+          display_event: (pyEvent) => {
+            const jsEvent = Object.fromEntries(pyEvent.toJs());
+
+            if (jsEvent.content) {
+              visual.innerHTML = "";
+              visual.appendChild(jsEvent.content);
+            }
+          },
+          locals: () => pyodide.runPython("globals()"),
         },
       };
     </script>
