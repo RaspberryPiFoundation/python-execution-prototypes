@@ -19,6 +19,8 @@ print("Numpy: ", numpy.sin(array))
 import turtle
 t = turtle.Turtle()
 t.forward(100)
+
+import p5
     </textarea>
 
     <br/>
@@ -82,6 +84,23 @@ t.forward(100)
             turtle.Screen().show_scene()
             document.getElementById("visual").innerHTML = turtle.svg()
           `),
+        },
+        p5: {
+          before: async () => {
+            await pyodide.registerJsModule("basthon", fakeBasthonPackage);
+            await pyodide.loadPackage(["setuptools", "./packages/p5-0.0.1-py3-none-any.whl"]);
+          },
+          after: () => {},
+        },
+      };
+
+      const fakeBasthonPackage = {
+        kernel: {
+          display_event: (node) => console.log(node),
+          locals: () => ({
+            get: () => null,
+            keys: () => [],
+          }),
         },
       };
     </script>
