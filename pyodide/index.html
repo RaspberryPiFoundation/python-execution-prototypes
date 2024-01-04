@@ -52,16 +52,21 @@ import p5
 
       const fakeBasthonPackage = {
         kernel: {
-          display_event: (pyEvent) => {
-            const jsEvent = Object.fromEntries(pyEvent.toJs());
-
-            if (jsEvent.content) {
-              visual.innerHTML = "";
-              visual.appendChild(jsEvent.content);
-            }
-          },
+          display_event: (e) => showVisual(e.toJs().get("content")),
           locals: () => pyodide.runPython("globals()"),
         },
+      };
+
+      const showVisual = (element) => {
+        if (!element) { return; }
+
+        if (element instanceof SVGElement) {
+          // Animations won't play if we append the svg.
+          visual.innerHTML = element.outerHTML;
+        } else {
+          visual.innerHTML = "";
+          visual.appendChild(element);
+        }
       };
 
       const run = async () => {
@@ -96,10 +101,11 @@ import p5
           before: () => pyodide.loadPackage("./packages/turtle-0.0.1-py3-none-any.whl"),
           after: () => pyodide.runPython(`
             import turtle
-            from js import document
+            import basthon
 
-            turtle.Screen().show_scene()
-            document.getElementById("visual").innerHTML = turtle.svg()
+            svg = turtle.Screen().show_scene()
+            basthon.kernel.display_event({ "display_type": "turtle", "content": svg })
+            turtle.restart()
           `),
         },
         p5: {
