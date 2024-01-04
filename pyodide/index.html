@@ -49,7 +49,7 @@ t.forward(100)
         output.innerHTML = "";
 
         try {
-          await withTurtleSupport(async () => {
+          await withSupportForVendoredPackages(async () => {
             await pyodide.loadPackagesFromImports(input.value);
             await pyodide.runPython(input.value);
           });
@@ -58,19 +58,31 @@ t.forward(100)
         }
       };
 
-      const withTurtleSupport = async (runPythonFn) => {
-        const turtleNeeded = input.value.includes("import turtle");
-        if (!turtleNeeded) { return runPythonFn(); }
+      const withSupportForVendoredPackages = async (runPythonFn) => {
+        const imports = await pyodide._api.pyodide_code.find_imports(input.value).toJs(); // TOOD: use public API
 
-        await pyodide.loadPackage("./packages/turtle-0.0.1-py3-none-any.whl");
+        for (name of imports) {
+          await vendoredPackages[name]?.before();
+        }
+
         await runPythonFn();
-        await pyodide.runPython(`
-          import turtle
-          from js import document
 
-          turtle.Screen().show_scene()
-          document.getElementById("visual").innerHTML = turtle.svg()
-        `);
+        for (name of imports) {
+          await vendoredPackages[name]?.after();
+        }
+      };
+
+      const vendoredPackages = {
+        turtle: {
+          before: () => pyodide.loadPackage("./packages/turtle-0.0.1-py3-none-any.whl"),
+          after: () => pyodide.runPython(`
+            import turtle
+            from js import document
+
+            turtle.Screen().show_scene()
+            document.getElementById("visual").innerHTML = turtle.svg()
+          `),
+        },
       };
     </script>
   </body>
