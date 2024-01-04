@@ -38,15 +38,31 @@ import p5
       let pyodide;
 
       const main = async () => {
-        pyodide = await loadPyodide({
-          stdout: (text) => output.innerHTML += text + "\n",
-          // TODO: should we use fullStdLib: true ?
-        });
+        pyodide = await loadPyodide(pyodideConfig);
+        await pyodide.registerJsModule("basthon", fakeBasthonPackage);
 
         runButton.disabled = false;
         output.innerHTML = "";
       };
-      main();
+
+      const pyodideConfig = {
+        stdout: (text) => output.innerHTML += text + "\n",
+        // TODO: should we use fullStdLib: true ?
+      };
+
+      const fakeBasthonPackage = {
+        kernel: {
+          display_event: (pyEvent) => {
+            const jsEvent = Object.fromEntries(pyEvent.toJs());
+
+            if (jsEvent.content) {
+              visual.innerHTML = "";
+              visual.appendChild(jsEvent.content);
+            }
+          },
+          locals: () => pyodide.runPython("globals()"),
+        },
+      };
 
       const run = async () => {
         output.innerHTML = "";
@@ -87,27 +103,12 @@ import p5
           `),
         },
         p5: {
-          before: async () => {
-            await pyodide.registerJsModule("basthon", fakeBasthonPackage);
-            await pyodide.loadPackage(["setuptools", "./packages/p5-0.0.1-py3-none-any.whl"]);
-          },
+          before: () => pyodide.loadPackage(["setuptools", "./packages/p5-0.0.1-py3-none-any.whl"]),
           after: () => {},
         },
       };
 
-      const fakeBasthonPackage = {
-        kernel: {
-          display_event: (pyEvent) => {
-            const jsEvent = Object.fromEntries(pyEvent.toJs());
-
-            if (jsEvent.content) {
-              visual.innerHTML = "";
-              visual.appendChild(jsEvent.content);
-            }
-          },
-          locals: () => pyodide.runPython("globals()"),
-        },
-      };
+      main();
     </script>
   </body>
 </html>
