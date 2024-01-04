@@ -16,11 +16,17 @@ import numpy
 array =  numpy.array([1, 2, 3])
 print("Numpy: ", numpy.sin(array))
 
-import turtle
-t = turtle.Turtle()
-t.forward(100)
+#import turtle
+#t = turtle.Turtle()
+#t.forward(100)
 
-import p5
+from p5 import *
+def setup():
+    createCanvas(400, 200)
+def draw():
+    color = frameCount % 255
+    background(color, color, 255 - color)
+run()
     </textarea>
 
     <br/>
