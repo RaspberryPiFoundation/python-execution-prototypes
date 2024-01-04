@@ -4,11 +4,10 @@ rm -rf basthon-kernel
 git clone https://framagit.org/basthon/basthon-kernel.git
 pushd basthon-kernel/packages/kernel-python3/src/modules
 
-python3 -m pip install --upgrade build
-
 for package in *; do
   pushd $package
-  python3 -m build
+  npm install
+  make
   cp dist/*.whl ../../../../../../pyodide/packages/
   popd
 done
