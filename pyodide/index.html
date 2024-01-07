@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Pyodide</title>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
   </head>
   <body>
     <textarea id="input" cols="80" rows="25">
@@ -56,6 +57,8 @@ bar_chart.render()
         await pyodide.registerJsModule("basthon", fakeBasthonPackage);
         await pyodide.registerJsModule("pygal", { ...pygal });
 
+        pygal.config.domOutput = (html) => showVisual(html);
+
         runButton.disabled = false;
         output.innerHTML = "";
       };
@@ -78,10 +81,14 @@ bar_chart.render()
         if (element instanceof SVGElement) {
           // Animations won't play if we append the svg.
           visual.innerHTML = element.outerHTML;
+        } else if (typeof element === "string") {
+          visual.innerHTML = element;
         } else {
           visual.innerHTML = "";
           visual.appendChild(element);
         }
+
+        return visual.firstChild;
       };
 
       const run = async () => {
