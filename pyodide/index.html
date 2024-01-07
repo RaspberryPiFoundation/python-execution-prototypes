@@ -6,7 +6,7 @@
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
   </head>
   <body>
-    <textarea id="input" cols="80" rows="15">
+    <textarea id="input" cols="80" rows="25">
 print("Hello, World!")
 
 import random
@@ -27,6 +27,11 @@ def draw():
     color = frameCount % 255
     background(color, color, 255 - color)
 run()
+
+import pygal
+bar_chart = pygal.Bar()
+bar_chart.add("Fibonacci", [1, 1, 2, 3, 5])
+bar_chart.render()
     </textarea>
 
     <br/>
@@ -36,6 +41,8 @@ run()
     <div id="visual" style="width: fit-content;"></div>
 
     <script type="module">
+      import * as pygal from "../../pygal.js/pygal.js";
+
       const runButton = document.getElementById("run");
       const input = document.getElementById("input");
       const output = document.getElementById("output");
@@ -45,7 +52,9 @@ run()
 
       const main = async () => {
         pyodide = await loadPyodide(pyodideConfig);
+
         await pyodide.registerJsModule("basthon", fakeBasthonPackage);
+        await pyodide.registerJsModule("pygal", { ...pygal });
 
         runButton.disabled = false;
         output.innerHTML = "";
