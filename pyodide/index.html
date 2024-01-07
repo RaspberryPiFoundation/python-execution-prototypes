@@ -30,12 +30,12 @@ run()
     </textarea>
 
     <br/>
-    <button id="run" onclick="run()" disabled>Run</button>
+    <button id="run" disabled>Run</button>
 
     <pre id="output">Loading pyodide...</pre>
     <div id="visual" style="width: fit-content;"></div>
 
-    <script type="text/javascript">
+    <script type="module">
       const runButton = document.getElementById("run");
       const input = document.getElementById("input");
       const output = document.getElementById("output");
@@ -121,6 +121,7 @@ run()
       };
 
       main();
+      runButton.addEventListener("click", run);
     </script>
   </body>
 </html>
