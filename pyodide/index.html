@@ -7,7 +7,7 @@
     <script src="https://code.highcharts.com/highcharts.js"></script>
   </head>
   <body>
-    <textarea id="input" cols="80" rows="32">
+    <textarea id="input" cols="80" rows="35">
 print("Hello, World!")
 
 import random
@@ -15,7 +15,7 @@ print("Random number: ", random.randint(1, 10))
 
 import numpy
 array =  numpy.array([1, 2, 3])
-print("Numpy: ", numpy.sin(array))
+print("Numpy:", numpy.sin(array))
 
 #import turtle
 #t = turtle.Turtle()
@@ -38,6 +38,9 @@ import sqlite3
 conn = sqlite3.connect("sports_club.sqlite")
 rows = conn.execute("select FirstName from Member").fetchall()
 print(rows)
+
+from complex import Complex
+print("Complex:", Complex(2, 3) + Complex(4, 5))
     </textarea>
 
     <br/>
