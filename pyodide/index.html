@@ -96,7 +96,7 @@ print(rows)
         output.innerHTML = "";
 
         try {
-          await withSupportForVendoredPackages(async () => {
+          await withSupportForPackages(async () => {
             await pyodide.loadPackagesFromImports(input.value);
             await pyodide.runPython(input.value);
           });
@@ -105,11 +105,11 @@ print(rows)
         }
       };
 
-      const withSupportForVendoredPackages = async (runPythonFn) => {
-        const imports = await pyodide._api.pyodide_code.find_imports(input.value).toJs(); // TOOD: use public API
+      const withSupportForPackages = async (runPythonFn) => {
+        const imports = await pyodide._api.pyodide_code.find_imports(input.value).toJs(); // TODO: use public API
 
         for (name of imports) {
-          await vendoredPackages[name]?.before();
+          await loadDependency(name);
         }
 
         await runPythonFn();
@@ -117,6 +117,38 @@ print(rows)
         for (name of imports) {
           await vendoredPackages[name]?.after();
         }
+      };
+
+      let micropip;
+
+      const loadDependency = async (name) => {
+        // If the import is for a vendored package then run its .before() hook.
+        const vendoredPackage = vendoredPackages[name];
+        await vendoredPackage?.before();
+        if (vendoredPackage) { return; }
+
+        // If the import is for a module built into Python then do nothing.
+        let pythonModule;
+        try { pythonModule = pyodide.pyimport(name); } catch(_) { }
+        if (pythonModule) { return; }
+
+        // If the import is for a package built into Pyodide then load it.
+        // Built-ins: https://pyodide.org/en/stable/usage/packages-in-pyodide.html
+        await pyodide.loadPackage(name).catch(() => {});
+        let pyodidePackage;
+        try { pyodidePackage = pyodide.pyimport(name); } catch(_) { }
+        if (pyodidePackage) { return; }
+
+        // Ensure micropip is loaded which can fetch packages from PyPi.
+        // See: https://pyodide.org/en/stable/usage/loading-packages.html
+        if (!micropip) {
+          await pyodide.loadPackage("micropip");
+          micropip = pyodide.pyimport("micropip");
+        }
+
+        // If the import is for a PyPi package then load it.
+        // Otherwise, don't error now so that we get an error later from Python.
+        await micropip.install(name).catch(() => {});
       };
 
       const vendoredPackages = {
