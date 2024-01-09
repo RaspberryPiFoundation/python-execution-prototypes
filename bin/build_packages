@@ -13,3 +13,9 @@ for package in *; do
 done
 
 popd
+
+pushd pyodide/packages/sense_hat
+python -m build
+cp dist/*.whl ../
+rm -rf dist *.egg-info
+popd
