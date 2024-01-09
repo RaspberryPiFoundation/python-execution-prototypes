@@ -1,10 +1,13 @@
 /**
  * Internal SenseHat Module for reading and writing values from
  * JavaScript World to the Python World. This modules set ups
- * the commmunication and allows to read and write pixels. If the
- * "Sk.sense_hat_emit" config is present, we emit events when
- * values are changed: Python -> JavaScript
+ * the commmunication and allows to read and write pixels.
  */
+
+export const config = {
+  emit: () => {},
+};
+
  var $builtinmodule = function (name) {
   var mod = {};
 
@@ -27,9 +30,7 @@
   }
 
   mod.init = new Sk.builtin.func(function () {
-      if (Sk.sense_hat_emit) {
-          Sk.sense_hat_emit('init');
-      }
+    config.emit('init');
   });
 
   // _fb_device specific methods
@@ -57,9 +58,7 @@
           throw new Sk.builtin.ValueError(e.message);
       }
 
-      if (Sk.sense_hat_emit) {
-          Sk.sense_hat_emit('setpixel', _index);
-      }
+      config.emit('setpixel', _index);
   });
 
   mod.getpixel = new Sk.builtin.func(function (index) {
@@ -92,9 +91,7 @@
           throw new Sk.builtin.ValueError(e.message);
       }
 
-      if (Sk.sense_hat_emit) {
-          Sk.sense_hat_emit('setpixels', _indexes);
-      }
+      config.emit('setpixels', _indexes);
   });
 
   mod.getpixels = new Sk.builtin.func(function () {
@@ -120,9 +117,7 @@
       var _gamma = Sk.ffi.remapToJs(gamma);
       Sk.sense_hat.gamma = _gamma;
 
-      if (Sk.sense_hat_emit) {
-          Sk.sense_hat_emit('setGamma');
-      }
+      config.emit('setGamma');
   });
 
   mod.setLowlight = new Sk.builtin.func(function (value) {
@@ -130,9 +125,7 @@
 
       Sk.sense_hat.low_light = _value;
 
-      if (Sk.sense_hat_emit) {
-          Sk.sense_hat_emit('changeLowlight', _value);
-      }
+      config.emit('changeLowlight', _value);
   });
 
   // RTIMU stuff
