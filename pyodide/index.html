@@ -58,11 +58,7 @@ print(rows)
 
       const main = async () => {
         pyodide = await loadPyodide(pyodideConfig);
-
-        await pyodide.registerJsModule("basthon", fakeBasthonPackage);
-        await pyodide.registerJsModule("pygal", { ...pygal });
-
-        pygal.config.domOutput = (html) => showVisual(html);
+        pyodide.registerJsModule("basthon", fakeBasthonPackage);
 
         const response = await fetch("https://cdn.adacomputerscience.org/ada/example_databases/sports_club.sqlite");
         const buffer = await response.arrayBuffer();
@@ -141,6 +137,13 @@ print(rows)
         },
         p5: {
           before: () => pyodide.loadPackage(["setuptools", "./packages/p5-0.0.1-py3-none-any.whl"]),
+          after: () => {},
+        },
+        pygal: {
+          before: () => {
+            pyodide.registerJsModule("pygal", { ...pygal });
+            pygal.config.domOutput = (html) => showVisual(html);
+          },
           after: () => {},
         },
       };
