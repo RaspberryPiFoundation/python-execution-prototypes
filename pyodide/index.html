@@ -41,6 +41,8 @@ print(rows)
 
 from complex import Complex
 print("Complex:", Complex(2, 3) + Complex(4, 5))
+
+import sense_hat
     </textarea>
 
     <br/>
@@ -51,6 +53,7 @@ print("Complex:", Complex(2, 3) + Complex(4, 5))
 
     <script type="module">
       import * as pygal from "./packages/pygal.js";
+      import * as _internal_sense_hat from "./packages/_internal_sense_hat.js";
 
       const runButton = document.getElementById("run");
       const input = document.getElementById("input");
@@ -186,6 +189,13 @@ print("Complex:", Complex(2, 3) + Complex(4, 5))
           },
           after: () => {},
         },
+        sense_hat: {
+          before: async () => {
+            pyodide.registerJsModule("_internal_sense_hat", { ..._internal_sense_hat });
+            await pyodide.loadPackage(["pillow", "./packages/sense_hat-0.0.1-py3-none-any.whl"]);
+          },
+          after: () => {},
+        }
       };
 
       main();
