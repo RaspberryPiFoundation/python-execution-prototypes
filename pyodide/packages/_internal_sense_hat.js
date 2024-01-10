@@ -9,6 +9,7 @@ export const config = {
   emit: () => {},
   colour: "#FF00A4",
   gamma: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  low_light: false,
   mz_criteria: {
     duration: null,
     noInputEvents: true,
@@ -141,7 +142,7 @@ export const setGamma = (gamma) => {
 export const setLowlight = (value) => {
   var _value = Sk.ffi.remapToJs(value);
 
-  Sk.sense_hat.low_light = _value;
+  config.low_light = _value;
 
   config.emit('changeLowlight', _value);
 };
