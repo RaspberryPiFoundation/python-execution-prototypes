@@ -48,6 +48,8 @@ const raisePythonValueError = (message) => {
   }
 };
 
+const toJs = (val) => val?.toJs ? val.toJs() : val;
+
 const checkNumberAndReturn = (val) => {
   var parsed = parseFloat(val);
   // only numbers/floats are okay
@@ -73,8 +75,9 @@ export const init = () => {
 // _fb_device specific methods
 export const setpixel = (index, value) => {
   config.mz_criteria.usedLEDs = true
-  var _index;
-  var _value;
+
+  const _index = toJs(index);
+  const _value = toJs(value);
 
   if (!Sk.builtin.checkIterable(value)) {
     raisePythonValueError("'value' should be iterable")
@@ -85,9 +88,6 @@ export const setpixel = (index, value) => {
       raisePythonValueError("'value' should be iterable of 'int'")
     }
   }
-
-  _index = Sk.ffi.remapToJs(index);
-  _value = Sk.ffi.remapToJs(value);
 
   try {
     config.pixels[_index] = _value;
@@ -100,10 +100,9 @@ export const setpixel = (index, value) => {
 
 export const getpixel = (index) => {
   var value;
-  var _index;
   var _value;
 
-  _index = Sk.ffi.remapToJs(index);
+  const _index = toJs(index);
 
   try {
     _value = config.pixels[_index];
@@ -117,11 +116,13 @@ export const getpixel = (index) => {
 };
 
 export const setpixels = (indexes, values) => {
-  if (Sk.ffi.remapToJs(indexes)) {
+  const _indexes = toJs(indexes);
+  const _values = toJs(values);
+
+  if (_indexes) {
     config.mz_criteria.usedLEDs = true
   }
-  _indexes = Sk.ffi.remapToJs(indexes);
-  _values = Sk.ffi.remapToJs(values);
+
   try {
     config.pixels = _values;
   } catch (e) {
@@ -151,17 +152,12 @@ export const getGamma = () => {
 
 export const setGamma = (gamma) => {
   // checks are made in fb_device.py
-  var _gamma = Sk.ffi.remapToJs(gamma);
-  config.gamma = _gamma;
-
+  config.gamma = toJs(gamma);
   config.emit('setGamma');
 };
 
 export const setLowlight = (value) => {
-  var _value = Sk.ffi.remapToJs(value);
-
-  config.low_light = _value;
-
+  config.low_light = toJs(value);
   config.emit('changeLowlight', _value);
 };
 
@@ -265,7 +261,7 @@ const hex2rgb = (hex) => (
   ['0x' + hex[1] + hex[2] | 0, '0x' + hex[3] + hex[4] | 0, '0x' + hex[5] + hex[6] | 0]
 );
 
-export const  colourRead = () => {
+export const colourRead = () => {
   config.mz_criteria.readColour = true
   return Sk.ffi.remapToPy(hex2rgb(config.colour));
 };
