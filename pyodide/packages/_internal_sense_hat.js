@@ -49,6 +49,7 @@ const raisePythonValueError = (message) => {
 };
 
 const toJs = (val) => val?.toJs ? val.toJs() : val;
+const isIterable = (val) => !!val.[Symbol.iterator];
 
 const checkNumberAndReturn = (val) => {
   var parsed = parseFloat(val);
@@ -79,7 +80,7 @@ export const setpixel = (index, value) => {
   const _index = toJs(index);
   const _value = toJs(value);
 
-  if (!Sk.builtin.checkIterable(value)) {
+  if (!isIterable(_value)) {
     raisePythonValueError("'value' should be iterable")
   }
 
