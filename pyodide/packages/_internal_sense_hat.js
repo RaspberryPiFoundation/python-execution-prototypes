@@ -8,6 +8,7 @@ export const config = {
   pyodide: null,
   emit: () => {},
   colour: "#FF00A4",
+  gamma: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   mz_criteria: {
     duration: null,
     noInputEvents: true,
@@ -125,14 +126,14 @@ export const getpixels = () => {
 };
 
 export const getGamma = () => {
-  var gamma = Sk.ffi.remapToPy(Sk.sense_hat.gamma);
+  var gamma = Sk.ffi.remapToPy(config.gamma);
   return gamma;
 };
 
 export const setGamma = (gamma) => {
   // checks are made in fb_device.py
   var _gamma = Sk.ffi.remapToJs(gamma);
-  Sk.sense_hat.gamma = _gamma;
+  config.gamma = _gamma;
 
   config.emit('setGamma');
 };
