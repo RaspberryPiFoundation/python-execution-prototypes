@@ -30,6 +30,11 @@ export const config = {
     compass: [0, 0, 33] /* all compass values */,
     raw_orientation: [0, 90, 0],
   },
+  sensestick: {
+    _eventQueue: [],
+    off: () => {},
+    once: () => {},
+  },
   start_motion_callback: () => {},
   stop_motion_callback: () => {},
 };
