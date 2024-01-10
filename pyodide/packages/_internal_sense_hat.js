@@ -30,6 +30,8 @@ export const config = {
     compass: [0, 0, 33] /* all compass values */,
     raw_orientation: [0, 90, 0],
   },
+  start_motion_callback: () => {},
+  stop_motion_callback: () => {},
 };
 
 const raisePythonValueError = (message) => {
@@ -274,18 +276,14 @@ export const motionRead = () => (
  * Sets start motion callback
  */
 export const _start_motion = (callback) => {
-  if (!(callback instanceof Sk.builtin.none)) {
-    Sk.sense_hat.start_motion_callback = () => {Sk.misceval.callsimAsync(null, callback)};
-  }
+  if (callback) { config.start_motion_callback = callback; }
 };
 
 /**
  * Sets stop motion callback
  */
 export const _stop_motion = (callback) => {
-  if (!(callback instanceof Sk.builtin.none)) {
-    Sk.sense_hat.stop_motion_callback = () => {Sk.misceval.callsimAsync(null, callback)};
-  }
+  if (callback) { config.stop_motion_callback = callback; }
 };
 
 export const fusionPoseRead = () => {
