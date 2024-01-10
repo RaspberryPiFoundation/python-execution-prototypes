@@ -8,7 +8,8 @@ export const config = {
   pyodide: null,
   emit: () => {},
   colour: "#FF00A4",
-  gamma: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  gamma: new Array(32).fill(0),
+  pixels: new Array(64).fill([0, 0, 0]),
   low_light: false,
   motion: false,
   mz_criteria: {
@@ -73,7 +74,7 @@ export const setpixel = (index, value) => {
   _value = Sk.ffi.remapToJs(value);
 
   try {
-    Sk.sense_hat.pixels[_index] = _value;
+    config.pixels[_index] = _value;
   } catch (e) {
     raisePythonValueError(e.message);
   }
@@ -89,7 +90,7 @@ export const getpixel = (index) => {
   _index = Sk.ffi.remapToJs(index);
 
   try {
-    _value = Sk.sense_hat.pixels[_index];
+    _value = config.pixels[_index];
     value = Sk.ffi.remapToPy(_value); // should return a list
     //value = new Sk.builtin.list(value);
   } catch (e) {
@@ -106,7 +107,7 @@ export const setpixels = (indexes, values) => {
   _indexes = Sk.ffi.remapToJs(indexes);
   _values = Sk.ffi.remapToJs(values);
   try {
-    Sk.sense_hat.pixels = _values;
+    config.pixels = _values;
   } catch (e) {
     raisePythonValueError(e.message);
   }
@@ -118,7 +119,7 @@ export const getpixels = () => {
   var values;
 
   try {
-    values = Sk.ffi.remapToPy(Sk.sense_hat.pixels); // should return a list
+    values = Sk.ffi.remapToPy(config.pixels); // should return a list
     values = new Sk.builtin.list(values);
   } catch (e) {
     raisePythonValueError(e.message);
