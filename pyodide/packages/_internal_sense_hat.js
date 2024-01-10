@@ -10,6 +10,7 @@ export const config = {
   colour: "#FF00A4",
   gamma: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   low_light: false,
+  motion: false,
   mz_criteria: {
     duration: null,
     noInputEvents: true,
@@ -256,7 +257,7 @@ export const  colourRead = () => {
  * Motion
  */
 export const motionRead = () => (
-  Sk.ffi.remapToPy(Sk.sense_hat.motion)
+  Sk.ffi.remapToPy(config.motion)
 );
 
 /**
