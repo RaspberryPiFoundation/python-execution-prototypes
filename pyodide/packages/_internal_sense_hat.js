@@ -7,6 +7,7 @@
 export const config = {
   pyodide: null,
   emit: () => {},
+  colour: "#FF00A4",
   mz_criteria: {
     duration: null,
     noInputEvents: true,
@@ -246,7 +247,7 @@ const hex2rgb = (hex) => (
 
 export const  colourRead = () => {
   config.mz_criteria.readColour = true
-  return Sk.ffi.remapToPy(hex2rgb(Sk.sense_hat.colour));
+  return Sk.ffi.remapToPy(hex2rgb(config.colour));
 };
 
 /**
