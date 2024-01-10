@@ -21,6 +21,15 @@ export const config = {
     readTemperature: false,
     usedLEDs: false,
   },
+  rtimu: {
+    pressure: [1, 1013 + Math.random() - 0.5],
+    temperature: [1, 13 + Math.random() - 0.5],
+    humidity: [1, 45 + Math.random() - 0.5],
+    gyro: [0, 0, 0] /* all 3 gyro values */,
+    accel: [0, 0, 0] /* all 3 accel values */,
+    compass: [0, 0, 33] /* all compass values */,
+    raw_orientation: [0, 90, 0],
+  },
 };
 
 const raisePythonValueError = (message) => {
@@ -161,13 +170,13 @@ export const pressureRead = () => {
 
   var jsPressure; // object holding the parsed value
 
-  if (!Sk.sense_hat.rtimu.pressure || Sk.sense_hat.rtimu.pressure.length !== 2) {
+  if (!config.rtimu.pressure || config.rtimu.pressure.length !== 2) {
     // something was set wrong
     return Sk.ffi.remapToPy([].concat([0, -1], jsTemperature));
   }
 
   // check type of the temperature
-  jsPressure = checkNumberAndReturn(Sk.sense_hat.rtimu.pressure[1]);
+  jsPressure = checkNumberAndReturn(config.rtimu.pressure[1]);
 
   // invalid value provided
   if (jsPressure.valid === false) {
@@ -192,13 +201,13 @@ export const humidityRead = () => {
 
   var jsHumidity;
 
-  if (!Sk.sense_hat.rtimu.humidity || Sk.sense_hat.rtimu.humidity.length !== 2) {
+  if (!config.rtimu.humidity || config.rtimu.humidity.length !== 2) {
     // something was set wrong
     return Sk.ffi.remapToPy([].concat([0, -1], jsTemperature));
   }
 
   // check type of the temperature
-  jsHumidity = checkNumberAndReturn(Sk.sense_hat.rtimu.humidity[1]);
+  jsHumidity = checkNumberAndReturn(config.rtimu.humidity[1]);
 
   // invalid value provided
   if (jsHumidity.valid === false) {
@@ -220,13 +229,13 @@ export const temperatureRead = () => {
   config.mz_criteria.readTemperature = true
   var jsTemperature;
 
-  if (!Sk.sense_hat.rtimu.temperature || Sk.sense_hat.rtimu.temperature.length !== 2) {
+  if (!config.rtimu.temperature || config.rtimu.temperature.length !== 2) {
     // something was set wrong
     return Sk.ffi.remapToPy([0, -1]);
   }
 
   // check type of the temperature
-  var jsTemperature = checkNumberAndReturn(Sk.sense_hat.rtimu.temperature[1]);
+  var jsTemperature = checkNumberAndReturn(config.rtimu.temperature[1]);
 
   // invalid value provided
   if (jsTemperature.valid === false) {
@@ -280,17 +289,17 @@ export const _stop_motion = (callback) => {
 };
 
 export const fusionPoseRead = () => {
-  var fusionPose = Sk.ffi.remapToPy(Sk.sense_hat.rtimu.raw_orientation.map(x=>x*Math.PI/180));
+  var fusionPose = Sk.ffi.remapToPy(config.rtimu.raw_orientation.map(x=>x*Math.PI/180));
   return fusionPose;
 };
 
 export const accelRead = () => {
-  var accel = Sk.ffi.remapToPy(Sk.sense_hat.rtimu.accel);
+  var accel = Sk.ffi.remapToPy(config.rtimu.accel);
   return accel;
 };
 
 export const compassRead = () => {
-  var compass = Sk.ffi.remapToPy(Sk.sense_hat.rtimu.compass);
+  var compass = Sk.ffi.remapToPy(config.rtimu.compass);
   return compass;
 };
 
@@ -300,14 +309,14 @@ export const headingRead = () => {
 
   // Accelerometer's roll and pitch, used for compensation
   var x, y;
-  x = Sk.sense_hat.rtimu.raw_orientation[0]; // roll
-  y = Sk.sense_hat.rtimu.raw_orientation[1]; // pitch
+  x = config.rtimu.raw_orientation[0]; // roll
+  y = config.rtimu.raw_orientation[1]; // pitch
 
   // Compass raw values in microteslas
   var mx, my, mz;
-  mx = Sk.sense_hat.rtimu.compass[0];
-  my = Sk.sense_hat.rtimu.compass[1];
-  mz = Sk.sense_hat.rtimu.compass[2];
+  mx = config.rtimu.compass[0];
+  my = config.rtimu.compass[1];
+  mz = config.rtimu.compass[2];
 
   // Tilt compensation for Tait-Bryan XYZ convention
   // Formulas here: https://dev.widemeadows.de/2014/01/24/to-tilt-compensate-or-not-to-tilt-compensate/
@@ -326,7 +335,7 @@ export const headingRead = () => {
 };
 
 export const gyroRead = () => {
-  var gyro = Sk.ffi.remapToPy(Sk.sense_hat.rtimu.gyro);
+  var gyro = Sk.ffi.remapToPy(config.rtimu.gyro);
   return gyro;
 };
 
