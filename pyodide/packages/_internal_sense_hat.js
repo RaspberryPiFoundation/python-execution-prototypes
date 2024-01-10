@@ -5,7 +5,17 @@
  */
 
 export const config = {
+  pyodide: null,
   emit: () => {},
+};
+
+const raisePythonValueError = (message) => {
+  if (config.pyodide) {
+    const escaped = message.replaceAll('"', '\\"');
+    config.pyodide.runPython(`raise ValueError("${escaped}")`);
+  } else {
+    throw new TypeError(message);
+  }
 };
 
 const checkNumberAndReturn = (val) => {
@@ -37,12 +47,12 @@ export const setpixel = (index, value) => {
   var _value;
 
   if (!Sk.builtin.checkIterable(value)) {
-    throw new Sk.builtin.ValueError("'value' should be iterable")
+    raisePythonValueError("'value' should be iterable")
   }
 
   for (var i in value.v) {
     if (!Sk.builtin.checkInt(value.v[i])) {
-      throw new Sk.builtin.ValueError("'value' should be iterable of 'int'")
+      raisePythonValueError("'value' should be iterable of 'int'")
     }
   }
 
@@ -52,7 +62,7 @@ export const setpixel = (index, value) => {
   try {
     Sk.sense_hat.pixels[_index] = _value;
   } catch (e) {
-    throw new Sk.builtin.ValueError(e.message);
+    raisePythonValueError(e.message);
   }
 
   config.emit('setpixel', _index);
@@ -70,7 +80,7 @@ export const getpixel = (index) => {
     value = Sk.ffi.remapToPy(_value); // should return a list
     //value = new Sk.builtin.list(value);
   } catch (e) {
-    throw new Sk.builtin.ValueError(e.message);
+    raisePythonValueError(e.message);
   }
 
   return value;
@@ -85,7 +95,7 @@ export const setpixels = (indexes, values) => {
   try {
     Sk.sense_hat.pixels = _values;
   } catch (e) {
-    throw new Sk.builtin.ValueError(e.message);
+    raisePythonValueError(e.message);
   }
 
   config.emit('setpixels', _indexes);
@@ -98,7 +108,7 @@ export const getpixels = () => {
     values = Sk.ffi.remapToPy(Sk.sense_hat.pixels); // should return a list
     values = new Sk.builtin.list(values);
   } catch (e) {
-    throw new Sk.builtin.ValueError(e.message);
+    raisePythonValueError(e.message);
   }
 
   return values;
