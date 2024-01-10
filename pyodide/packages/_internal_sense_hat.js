@@ -7,6 +7,15 @@
 export const config = {
   pyodide: null,
   emit: () => {},
+  mz_criteria: {
+    duration: null,
+    noInputEvents: true,
+    readColour: false,
+    readHumidity: false,
+    readPressure: false,
+    readTemperature: false,
+    usedLEDs: false,
+  },
 };
 
 const raisePythonValueError = (message) => {
@@ -42,7 +51,7 @@ export const init = () => {
 
 // _fb_device specific methods
 export const setpixel = (index, value) => {
-  Sk.sense_hat.mz_criteria.usedLEDs = true
+  config.mz_criteria.usedLEDs = true
   var _index;
   var _value;
 
@@ -88,7 +97,7 @@ export const getpixel = (index) => {
 
 export const setpixels = (indexes, values) => {
   if (Sk.ffi.remapToJs(indexes)) {
-    Sk.sense_hat.mz_criteria.usedLEDs = true
+    config.mz_criteria.usedLEDs = true
   }
   _indexes = Sk.ffi.remapToJs(indexes);
   _values = Sk.ffi.remapToJs(values);
@@ -141,7 +150,7 @@ export const setLowlight = (value) => {
  * 260 - 1260 hPa
  */
 export const pressureRead = () => {
-  Sk.sense_hat.mz_criteria.readPressure = true
+  config.mz_criteria.readPressure = true
   var pyTemperature = Sk.misceval.callsim(mod.temperatureRead); // does the validation for us
   var jsTemperature = Sk.ffi.remapToJs(pyTemperature);
 
@@ -172,7 +181,7 @@ export const pressureRead = () => {
  * >= 0%
  */
 export const humidityRead = () => {
-  Sk.sense_hat.mz_criteria.readHumidity = true
+  config.mz_criteria.readHumidity = true
   var pyTemperature = Sk.misceval.callsim(mod.temperatureRead); // does the validation for us
   var jsTemperature = Sk.ffi.remapToJs(pyTemperature);
 
@@ -203,7 +212,7 @@ export const humidityRead = () => {
  * Temperature Range: -40 to +120 degrees celsius
  */
 export const temperatureRead = () => {
-  Sk.sense_hat.mz_criteria.readTemperature = true
+  config.mz_criteria.readTemperature = true
   var jsTemperature;
 
   if (!Sk.sense_hat.rtimu.temperature || Sk.sense_hat.rtimu.temperature.length !== 2) {
@@ -236,7 +245,7 @@ const hex2rgb = (hex) => (
 );
 
 export const  colourRead = () => {
-  Sk.sense_hat.mz_criteria.readColour = true
+  config.mz_criteria.readColour = true
   return Sk.ffi.remapToPy(hex2rgb(Sk.sense_hat.colour));
 };
 
@@ -328,7 +337,7 @@ export const _wait = (timeout) => {
 };
 
 export const _waitmotion = (timeout, motion) => {
-  Sk.sense_hat.mz_criteria.noInputEvents = false
+  config.mz_criteria.noInputEvents = false
   throw new Error("NotImplementedError")
 };
 
