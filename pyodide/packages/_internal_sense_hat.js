@@ -142,7 +142,9 @@ export const setGamma = (gamma) => {
 };
 
 export const setLowlight = (value) => {
-  config.low_light = toJs(value);
+  const _value = toJs(value);
+
+  config.low_light = toJs(_value);
   config.emit('changeLowlight', _value);
 };
 
