@@ -194,7 +194,9 @@ import sense_hat
           before: async () => {
             pyodide.registerJsModule("_internal_sense_hat", { ..._internal_sense_hat });
             await pyodide.loadPackage(["pillow", "./packages/sense_hat-0.0.1-py3-none-any.whl"]);
+
             _internal_sense_hat.config.pyodide = pyodide;
+            _internal_sense_hat.config.emit = (e) => console.log(`sense_hat emitted ${e}`);
           },
           after: () => {},
         }
