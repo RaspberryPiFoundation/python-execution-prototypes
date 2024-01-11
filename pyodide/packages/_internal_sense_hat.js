@@ -128,16 +128,7 @@ export const setpixels = (indexes, values) => {
 };
 
 export const getpixels = () => {
-  var values;
-
-  try {
-    values = Sk.ffi.remapToPy(config.pixels); // should return a list
-    values = new Sk.builtin.list(values);
-  } catch (e) {
-    raisePythonValueError(e.message);
-  }
-
-  return values;
+  return config.pixels;
 };
 
 export const getGamma = () => {
