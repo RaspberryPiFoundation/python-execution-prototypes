@@ -277,8 +277,7 @@ export const fusionPoseRead = () => {
 };
 
 export const accelRead = () => {
-  var accel = Sk.ffi.remapToPy(config.rtimu.accel);
-  return accel;
+  return config.rtimu.accel;
 };
 
 export const compassRead = () => {
