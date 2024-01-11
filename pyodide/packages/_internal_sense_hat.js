@@ -53,9 +53,9 @@ const isIterable = (val) => !!val?.[Symbol.iterator];
 const isInteger = (val) => val === parseInt(val, 10);
 
 const checkNumberAndReturn = (val) => {
-  var parsed = parseFloat(val);
+  const parsed = parseFloat(val);
   // only numbers/floats are okay
-  var isValid = !isNaN(parsed) && isFinite(val);
+  const isValid = !isNaN(parsed) && isFinite(val);
   if (isValid) {
     return {
       value: parsed,
@@ -183,8 +183,6 @@ export const humidityRead = () => {
   config.mz_criteria.readHumidity = true
   const temperature = temperatureRead(); // does the validation for us
 
-  var jsHumidity;
-
   if (!config.rtimu.humidity || config.rtimu.humidity.length !== 2) {
     // something was set wrong
     return [].concat([0, -1], temperature);
@@ -218,7 +216,7 @@ export const temperatureRead = () => {
   }
 
   // check type of the temperature
-  var { valid, value } = checkNumberAndReturn(config.rtimu.temperature[1]);
+  const { valid, value } = checkNumberAndReturn(config.rtimu.temperature[1]);
 
   // invalid value provided
   if (!valid) {
@@ -284,26 +282,23 @@ export const headingRead = () => {
   /* Note: RTIMULib calculates a moving average. This gives an instant reading */
 
   // Accelerometer's roll and pitch, used for compensation
-  var x, y;
-  x = config.rtimu.raw_orientation[0]; // roll
-  y = config.rtimu.raw_orientation[1]; // pitch
+  const x = config.rtimu.raw_orientation[0]; // roll
+  const y = config.rtimu.raw_orientation[1]; // pitch
 
   // Compass raw values in microteslas
-  var mx, my, mz;
-  mx = config.rtimu.compass[0];
-  my = config.rtimu.compass[1];
-  mz = config.rtimu.compass[2];
+  const mx = config.rtimu.compass[0];
+  const my = config.rtimu.compass[1];
+  const mz = config.rtimu.compass[2];
 
   // Tilt compensation for Tait-Bryan XYZ convention
   // Formulas here: https://dev.widemeadows.de/2014/01/24/to-tilt-compensate-or-not-to-tilt-compensate/
-  var phi, theta, mag_y, mag_x, heading;
-  phi = x;
-  theta = y;
+  const phi = x;
+  const theta = y;
 
   // Remap magnetometer values to the horizontal plane and determine yaw (aka heading)
-  mag_x = mx * Math.cos(theta) + my * Math.sin(phi) * Math.sin(phi) + mz * Math.cos(phi) * Math.sin(theta);
-  mag_y = my * Math.cos(phi) - mz * Math.sin(phi);
-  heading = Math.atan2(-mag_y, mag_x);
+  const mag_x = mx * Math.cos(theta) + my * Math.sin(phi) * Math.sin(phi) + mz * Math.cos(phi) * Math.sin(theta);
+  const mag_y = my * Math.cos(phi) - mz * Math.sin(phi);
+  const heading = Math.atan2(-mag_y, mag_x);
 
   return heading;
 };
