@@ -224,7 +224,7 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
             await pyodide.loadPackage(["pillow", "./packages/sense_hat-0.0.1-py3-none-any.whl"]);
 
             _internal_sense_hat.config.pyodide = pyodide;
-            _internal_sense_hat.config.emit = (e) => console.log(`sense_hat emitted ${e}`);
+            _internal_sense_hat.config.emit = (event, ...args) => console.log(`sense_hat emitted ${event}: ${args}`);
           },
           after: () => {
             const element = document.getElementById("sense_hat_config");
