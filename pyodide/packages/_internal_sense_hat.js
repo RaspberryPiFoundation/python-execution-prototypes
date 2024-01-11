@@ -273,8 +273,7 @@ export const _stop_motion = (callback) => {
 };
 
 export const fusionPoseRead = () => {
-  var fusionPose = Sk.ffi.remapToPy(config.rtimu.raw_orientation.map(x=>x*Math.PI/180));
-  return fusionPose;
+  return config.rtimu.raw_orientation.map(x=> x * Math.PI / 180);
 };
 
 export const accelRead = () => {
