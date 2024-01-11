@@ -281,8 +281,7 @@ export const accelRead = () => {
 };
 
 export const compassRead = () => {
-  var compass = Sk.ffi.remapToPy(config.rtimu.compass);
-  return compass;
+  return config.rtimu.compass;
 };
 
 export const headingRead = () => {
