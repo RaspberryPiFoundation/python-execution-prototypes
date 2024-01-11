@@ -315,32 +315,32 @@ export const gyroRead = () => {
  **/
 
 export const _wait = (timeout) => {
-  throw new Error("NotImplementedError")
+  raisePythonError("NotImplementedError", "_wait");
 };
 
 export const _waitmotion = (timeout, motion) => {
   config.mz_criteria.noInputEvents = false
-  throw new Error("NotImplementedError")
+  raisePythonError("NotImplementedError", "_waitmotion");
 };
 
 export const _inspectFunction = (func) => {
-  throw new Error("NotImplementedError")
+  raisePythonError("NotImplementedError", "_inspectFunction");
 };
 
 /**
  * Removes the event handler for simulating threading
  */
 export const _stop_stick_thread = () => {
-  throw new Error("NotImplementedError")
+  raisePythonError("NotImplementedError", "_stop_stick_thread");
 };
 
 /**
  * Adds the event handler for simulating threading for the SenseStick callbacks
  */
 export const _start_stick_thread = (callback) => {
-  throw new Error("NotImplementedError")
+  raisePythonError("NotImplementedError", "_start_stick_thread");
 };
 
 export const _read = () => {
-  throw new Error("NotImplementedError")
+  raisePythonError("NotImplementedError", "_read");
 };
