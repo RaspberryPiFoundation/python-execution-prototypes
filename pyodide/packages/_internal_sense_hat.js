@@ -314,8 +314,7 @@ export const headingRead = () => {
 };
 
 export const gyroRead = () => {
-  var gyro = Sk.ffi.remapToPy(config.rtimu.gyro);
-  return gyro;
+  return config.rtimu.gyro;
 };
 
 /********************************************************/
