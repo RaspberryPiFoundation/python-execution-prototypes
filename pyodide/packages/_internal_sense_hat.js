@@ -101,20 +101,13 @@ export const setpixel = (index, value) => {
 };
 
 export const getpixel = (index) => {
-  var value;
-  var _value;
-
   const _index = toJs(index);
 
   try {
-    _value = config.pixels[_index];
-    value = Sk.ffi.remapToPy(_value); // should return a list
-    //value = new Sk.builtin.list(value);
+    return config.pixels[_index];
   } catch (e) {
     raisePythonValueError(e.message);
   }
-
-  return value;
 };
 
 export const setpixels = (indexes, values) => {
