@@ -112,11 +112,12 @@ import sense_hat
           await withSupportForPackages(async () => {
             await pyodide.loadPackagesFromImports(input.value);
             await pyodide.runPython(input.value);
-            await reloadPyodideToClearState();
           });
         } catch (error) {
           console.log(error);
         }
+
+        await reloadPyodideToClearState();
       };
 
       const withSupportForPackages = async (runPythonFn) => {
