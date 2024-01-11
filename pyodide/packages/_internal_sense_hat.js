@@ -153,30 +153,27 @@ export const setLowlight = (value) => {
  */
 export const pressureRead = () => {
   config.mz_criteria.readPressure = true
-  var pyTemperature = Sk.misceval.callsim(mod.temperatureRead); // does the validation for us
-  var jsTemperature = Sk.ffi.remapToJs(pyTemperature);
-
-  var jsPressure; // object holding the parsed value
+  const temperature = temperatureRead(); // does the validation for us
 
   if (!config.rtimu.pressure || config.rtimu.pressure.length !== 2) {
     // something was set wrong
-    return Sk.ffi.remapToPy([].concat([0, -1], jsTemperature));
+    return [].concat([0, -1], temperature);
   }
 
   // check type of the temperature
-  jsPressure = checkNumberAndReturn(config.rtimu.pressure[1]);
+  const { valid, value } = checkNumberAndReturn(config.rtimu.pressure[1]);
 
   // invalid value provided
-  if (jsPressure.valid === false) {
-    return Sk.ffi.remapToPy([].concat([0, -1], jsTemperature));
+  if (!valid) {
+    return [].concat([0, -1], temperature);
   }
 
   // now do some range checks
-  if (jsPressure.value < 260 || jsPressure.value > 1260) {
-    return Sk.ffi.remapToPy([].concat([0, jsPressure.value], jsTemperature));
+  if (value < 260 || value > 1260) {
+    return [].concat([0, value], temperature);
   }
 
-  return Sk.ffi.remapToPy([].concat([1, jsPressure.value], jsTemperature));
+  return [].concat([1, value], temperature);
 };
 
 /**
