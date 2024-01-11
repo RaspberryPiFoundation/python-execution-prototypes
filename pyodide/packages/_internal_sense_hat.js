@@ -255,7 +255,7 @@ export const colourRead = () => {
  * Motion
  */
 export const motionRead = () => (
-  Sk.ffi.remapToPy(config.motion)
+  return config.motion;
 );
 
 /**
