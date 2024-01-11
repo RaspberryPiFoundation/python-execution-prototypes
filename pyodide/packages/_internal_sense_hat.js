@@ -181,30 +181,29 @@ export const pressureRead = () => {
  */
 export const humidityRead = () => {
   config.mz_criteria.readHumidity = true
-  var pyTemperature = Sk.misceval.callsim(mod.temperatureRead); // does the validation for us
-  var jsTemperature = Sk.ffi.remapToJs(pyTemperature);
+  const temperature = temperatureRead(); // does the validation for us
 
   var jsHumidity;
 
   if (!config.rtimu.humidity || config.rtimu.humidity.length !== 2) {
     // something was set wrong
-    return Sk.ffi.remapToPy([].concat([0, -1], jsTemperature));
+    return [].concat([0, -1], temperature);
   }
 
   // check type of the temperature
-  jsHumidity = checkNumberAndReturn(config.rtimu.humidity[1]);
+  const { valid, value } = checkNumberAndReturn(config.rtimu.humidity[1]);
 
   // invalid value provided
-  if (jsHumidity.valid === false) {
-    return Sk.ffi.remapToPy([].concat([0, -1], jsTemperature));
+  if (!valid) {
+    return [].concat([0, -1], temperature);
   }
 
   // now do some range checks
-  if (jsHumidity.value < 0) {
-    return Sk.ffi.remapToPy([].concat([0, jsHumidity.value], jsTemperature));
+  if (value < 0) {
+    return [].concat([0, value], temperature)
   }
 
-  return Sk.ffi.remapToPy([].concat([1, jsHumidity.value], jsTemperature));
+  return [].concat([1, value], temperature);
 };
 
 /**
