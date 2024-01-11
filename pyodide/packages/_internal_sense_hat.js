@@ -49,7 +49,7 @@ const raisePythonValueError = (message) => {
 };
 
 const toJs = (val) => val?.toJs ? val.toJs() : val;
-const isIterable = (val) => !!val.[Symbol.iterator];
+const isIterable = (val) => !!val?.[Symbol.iterator];
 const isInteger = (val) => val === parseInt(val, 10);
 
 const checkNumberAndReturn = (val) => {
@@ -249,9 +249,9 @@ export const colourRead = () => {
 /**
  * Motion
  */
-export const motionRead = () => (
+export const motionRead = () => {
   return config.motion;
-);
+};
 
 /**
  * Sets start motion callback
