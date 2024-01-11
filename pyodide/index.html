@@ -8,7 +8,8 @@
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
   </head>
   <body>
-    <textarea id="input" cols="80" rows="35">
+    <div id="side_by_side" style="display: flex;">
+      <textarea id="input" rows="35" style="width: 50%">
 print("Hello, World!")
 
 import random
@@ -44,7 +45,9 @@ from complex import Complex
 print("Complex:", Complex(2, 3) + Complex(4, 5))
 
 import sense_hat
-    </textarea>
+      </textarea>
+      <div id="sense_hat_config" style="width: 50%"></div>
+    </div>
 
     <br/>
     <button id="run" disabled>Run</button>
@@ -198,7 +201,14 @@ import sense_hat
             _internal_sense_hat.config.pyodide = pyodide;
             _internal_sense_hat.config.emit = (e) => console.log(`sense_hat emitted ${e}`);
           },
-          after: () => {},
+          after: () => {
+            const element = document.getElementById("sense_hat_config");
+
+            const { pyodide, ...config } = _internal_sense_hat.config;
+            const json = JSON.stringify(config);
+
+            element.innerHTML = json;
+          },
         }
       };
 
