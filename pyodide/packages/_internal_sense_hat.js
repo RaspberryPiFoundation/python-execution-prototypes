@@ -248,7 +248,7 @@ const hex2rgb = (hex) => (
 
 export const colourRead = () => {
   config.mz_criteria.readColour = true
-  return Sk.ffi.remapToPy(hex2rgb(config.colour));
+  return hex2rgb(config.colour);
 };
 
 /**
