@@ -44,7 +44,29 @@ print(rows)
 from complex import Complex
 print("Complex:", Complex(2, 3) + Complex(4, 5))
 
-import sense_hat
+from sense_hat import SenseHat
+sense = SenseHat()
+#sense._motion.wait_for_motion()
+#sense._motion.wait_for_no_motion()
+print("motion_detected:", sense._motion.motion_detected)
+sense._motion.when_motion = lambda *args: None
+sense._motion.when_no_motion = lambda *args: None
+print("getIMUData:", sense._imu.getIMUData())
+print("_getFusionPose:", sense._imu._getFusionPose())
+print("pressureRead:", sense._pressure.pressureRead())
+print("humidityRead:", sense._humidity.humidityRead())
+device = sense._get_fb_device()
+device.setpixels(range(64), [[1, 1, 1]] * 64)
+device.setpixel(3, [5, 6, 7])
+print("getpixel:", device.getpixel(3))
+print("getpixels:", device.getpixels())
+print("colour_raw:", sense._colour.colour_raw)
+print("get_compass:", sense.get_compass())
+device.ioctl(SenseHat.SENSE_HAT_FB_FBIORESET_GAMMA, 1)
+buffer = [0] * 32
+device.ioctl(SenseHat.SENSE_HAT_FB_FBIOGET_GAMMA, buffer)
+print("GAMMA:", buffer)
+device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
       </textarea>
       <div id="sense_hat_config" style="width: 50%"></div>
     </div>
