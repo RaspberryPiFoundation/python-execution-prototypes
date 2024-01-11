@@ -301,17 +301,15 @@ export const headingRead = () => {
 
   // Tilt compensation for Tait-Bryan XYZ convention
   // Formulas here: https://dev.widemeadows.de/2014/01/24/to-tilt-compensate-or-not-to-tilt-compensate/
-  var phi, theta, mag_y, mag_x, jsheading, heading;
+  var phi, theta, mag_y, mag_x, heading;
   phi = x;
   theta = y;
 
   // Remap magnetometer values to the horizontal plane and determine yaw (aka heading)
   mag_x = mx * Math.cos(theta) + my * Math.sin(phi) * Math.sin(phi) + mz * Math.cos(phi) * Math.sin(theta);
   mag_y = my * Math.cos(phi) - mz * Math.sin(phi);
-  jsheading = Math.atan2(-mag_y, mag_x);
+  heading = Math.atan2(-mag_y, mag_x);
 
-  // Remap radian value to Skulpt and return
-  heading = Sk.ffi.remapToPy(jsheading);
   return heading;
 };
 
