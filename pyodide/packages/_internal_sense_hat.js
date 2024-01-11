@@ -39,12 +39,12 @@ export const config = {
   stop_motion_callback: () => {},
 };
 
-const raisePythonValueError = (message) => {
+const raisePythonError = (errorType, message) => {
   if (config.pyodide) {
     const escaped = message.replaceAll('"', '\\"');
-    config.pyodide.runPython(`raise ValueError("${escaped}")`);
+    config.pyodide.runPython(`raise ${errorType}("${escaped}")`);
   } else {
-    throw new TypeError(message);
+    throw new Error(`${errorType}: ${message}`);
   }
 };
 
@@ -82,19 +82,19 @@ export const setpixel = (index, value) => {
   const _value = toJs(value);
 
   if (!isIterable(_value)) {
-    raisePythonValueError("'value' should be iterable")
+    raisePythonError("ValueError", "'value' should be iterable")
   }
 
   for (let val of _value) {
     if (!isInteger(val)) {
-      raisePythonValueError("'value' should be iterable of 'int'")
+      raisePythonError("ValueError", "'value' should be iterable of 'int'")
     }
   }
 
   try {
     config.pixels[_index] = _value;
   } catch (e) {
-    raisePythonValueError(e.message);
+    raisePythonError("ValueError", e.message);
   }
 
   config.emit('setpixel', _index);
@@ -106,7 +106,7 @@ export const getpixel = (index) => {
   try {
     return config.pixels[_index];
   } catch (e) {
-    raisePythonValueError(e.message);
+    raisePythonError("ValueError", e.message);
   }
 };
 
@@ -121,7 +121,7 @@ export const setpixels = (indexes, values) => {
   try {
     config.pixels = _values;
   } catch (e) {
-    raisePythonValueError(e.message);
+    raisePythonError("ValueError", e.message);
   }
 
   config.emit('setpixels', _indexes);
