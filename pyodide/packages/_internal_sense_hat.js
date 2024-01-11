@@ -132,8 +132,7 @@ export const getpixels = () => {
 };
 
 export const getGamma = () => {
-  var gamma = Sk.ffi.remapToPy(config.gamma);
-  return gamma;
+  return config.gamma;
 };
 
 export const setGamma = (gamma) => {
