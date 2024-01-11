@@ -215,27 +215,26 @@ export const humidityRead = () => {
  */
 export const temperatureRead = () => {
   config.mz_criteria.readTemperature = true
-  var jsTemperature;
 
   if (!config.rtimu.temperature || config.rtimu.temperature.length !== 2) {
     // something was set wrong
-    return Sk.ffi.remapToPy([0, -1]);
+    return [0, -1];
   }
 
   // check type of the temperature
-  var jsTemperature = checkNumberAndReturn(config.rtimu.temperature[1]);
+  var { valid, value } = checkNumberAndReturn(config.rtimu.temperature[1]);
 
   // invalid value provided
-  if (jsTemperature.valid === false) {
-    return Sk.ffi.remapToPy([0, -1]);
+  if (!valid) {
+    return [0, -1];
   }
 
   // now do some range checks
-  if (jsTemperature.value < -40 || jsTemperature.value > 120) {
-    return Sk.ffi.remapToPy([0, jsTemperature.value]); // invalid
+  if (value < -40 || value > 120) {
+    return [0, value];
   }
 
-  return Sk.ffi.remapToPy([1, jsTemperature.value]);
+  return [1, value];
 };
 
 /**
