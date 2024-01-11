@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>PyScript</title>
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+  </head>
+  <body>
+    <textarea id="input" rows="10" style="width: 50%">
+print("Hello, World!")
+    </textarea>
+
+    <br/>
+    <button id="run">Run</button>
+
+    <div id="pyscript"></div>
+    <pre id="output"></pre>
+    <div id="visual" style="width: fit-content;"></div>
+
+    <script type="module">
+      import { hooks } from "https://pyscript.net/releases/2024.1.1/core.js";
+
+      const input = document.getElementById("input");
+      const pyscript = document.getElementById("pyscript");
+      const runButton = document.getElementById("run");
+
+      const run = () => {
+        const script = document.createElement("script");
+
+        script.type = "py";
+        script.innerText = input.value;
+
+        pyscript.innerHTML = "";
+        pyscript.appendChild(script);
+      };
+
+      runButton.addEventListener("click", run);
+
+      hooks.main.onReady.add((wrap, element) => {
+        console.log("ready");
+      });
+    </script>
+  </body>
+</html>
