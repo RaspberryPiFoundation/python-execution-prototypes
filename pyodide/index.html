@@ -105,13 +105,6 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
         // TODO: should we use fullStdLib: true ?
       };
 
-      const fakeBasthonPackage = {
-        kernel: {
-          display_event: (e) => showVisual(e.toJs().get("content")),
-          locals: () => pyodide.runPython("globals()"),
-        },
-      };
-
       const showVisual = (element) => {
         if (!element) { return; }
 
@@ -189,7 +182,10 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
 
       const vendoredPackages = {
         turtle: {
-          before: () => pyodide.loadPackage("./packages/turtle-0.0.1-py3-none-any.whl"),
+          before: async () => {
+            pyodide.registerJsModule("basthon", fakeBasthonPackage);
+            await pyodide.loadPackage("./packages/turtle-0.0.1-py3-none-any.whl");
+          },
           after: () => pyodide.runPython(`
             import turtle
             import basthon
@@ -200,7 +196,10 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
           `),
         },
         p5: {
-          before: () => pyodide.loadPackage(["setuptools", "./packages/p5-0.0.1-py3-none-any.whl"]),
+          before: async () => {
+            pyodide.registerJsModule("basthon", fakeBasthonPackage);
+            await pyodide.loadPackage(["setuptools", "./packages/p5-0.0.1-py3-none-any.whl"]);
+          },
           after: () => {},
         },
         pygal: {
@@ -236,6 +235,13 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
             element.innerHTML = json;
           },
         }
+      };
+
+      const fakeBasthonPackage = {
+        kernel: {
+          display_event: (e) => showVisual(e.toJs().get("content")),
+          locals: () => pyodide.runPython("globals()"),
+        },
       };
 
       reloadPyodideToClearState();
