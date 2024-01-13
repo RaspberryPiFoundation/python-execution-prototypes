@@ -143,7 +143,7 @@ class Chart {
       chart = this.renderer(options, chart);
     }
 
-    Highcharts.chart(elem, chart);
+    // Highcharts.chart(elem, chart); TODO
 
     return '';
   }

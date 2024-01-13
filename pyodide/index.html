@@ -3,13 +3,10 @@
   <head>
     <meta charset="utf-8">
     <title>Pyodide</title>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
   </head>
   <body>
     <div id="side_by_side" style="display: flex;">
-      <textarea id="input" rows="35" style="width: 50%">
+      <textarea id="stdin" rows="35" style="width: 50%">
 print("Hello, World!")
 
 import random
@@ -75,177 +72,82 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
     <br/>
     <button id="run" disabled>Run</button>
 
-    <pre id="output">Loading pyodide...</pre>
+    <pre id="stdout">Loading pyodide...</pre>
+    <pre id="stderr" style="color: #c00"></pre>
     <div id="visual" style="width: fit-content;"></div>
 
-    <script type="module">
-      import * as pygal from "./packages/pygal.js";
-      import * as _internal_sense_hat from "./packages/_internal_sense_hat.js";
-
-      const runButton = document.getElementById("run");
-      const input = document.getElementById("input");
-      const output = document.getElementById("output");
+    <script type="application/javascript">
+      const worker = new Worker("webworker.js", { type: "module" });
+      const stdin = document.getElementById("stdin");
+      const stdout = document.getElementById("stdout");
+      const stderr = document.getElementById("stderr");
       const visual = document.getElementById("visual");
+      const config = document.getElementById("sense_hat_config");
+      const run = document.getElementById("run");
 
-      let pyodide;
+      run.addEventListener("click", () => {
+        stdout.innerText = "";
+        stderr.innerText = "";
+        visual.innerText = "";
+        config.innerText = "";
 
-      const reloadPyodideToClearState = async () => {
-        pyodide = await loadPyodide(pyodideConfig);
-        pyodide.registerJsModule("basthon", fakeBasthonPackage);
+        worker.postMessage({ method: "runPython", python: stdin.value });
+      });
 
-        runButton.disabled = false;
+      worker.onmessage = async ({ data }) => {
+        if (data.method === "handleLoading") { handleLoading(); }
+        if (data.method === "handleLoaded") { handleLoaded() }
+        if (data.method === "handleStdout") { handleStdout(data.stdout); }
+        if (data.method === "handleStderr") { handleStderr(data.stderr); }
+        if (data.method === "handleVisual") { handleVisual(data.origin, data.content); }
+        if (data.method === "handleSenseHatEvent") { handleSenseHatEvent(data.type); }
+      };
 
-        if (output.innerHTML === "Loading pyodide...") {
-          output.innerHTML = "";
+      const handleLoading = () => {
+        // Do nothing.
+      };
+
+      const handleLoaded = () => {
+        if (stdout.innerText === "Loading pyodide...") {
+          stdout.innerText = "";
+          run.disabled = false;
         }
       };
 
-      const pyodideConfig = {
-        stdout: (text) => output.innerHTML += text + "\n",
-        // TODO: should we use fullStdLib: true ?
+      const handleStdout = (output) => {
+        stdout.innerText += output + "\n";
       };
 
-      const showVisual = (element) => {
-        if (!element) { return; }
+      const handleStderr = (output) => {
+        stderr.innerText += output + "\n";
+      };
 
-        if (element instanceof SVGElement) {
+      const handleVisual = (origin, content) => {
+        // TODO: this isn't working for a couple of different reasons:
+        //
+        // turtle: cannot import name 'document' from 'js'
+        // pygal: commented out Highcharts and no firstChild sent back from domOutput function
+
+        if (!content) { return; }
+
+        if (origin === "sense_hat") {
+          config.innerText = JSON.stringify(content);
+        } else if (content instanceof SVGElement) {
           // Animations won't play if we append the svg.
-          visual.innerHTML = element.outerHTML;
-        } else if (typeof element === "string") {
-          visual.innerHTML = element;
+          visual.innerHTML = content.outerHTML;
+        } else if (typeof content === "string") {
+          visual.innerHTML = content;
         } else {
           visual.innerHTML = "";
-          visual.appendChild(element);
+          visual.appendChild(content);
         }
 
-        return visual.firstChild;
+        return visual.firstChild; // TODO: pygal
       };
 
-      const run = async () => {
-        output.innerHTML = "";
-
-        try {
-          await withSupportForPackages(async () => {
-            await pyodide.loadPackagesFromImports(input.value);
-            await pyodide.runPython(input.value);
-          });
-        } catch (error) {
-          console.log(error);
-        }
-
-        await reloadPyodideToClearState();
+      const handleSenseHatEvent = () => {
+        // Do nothing.
       };
-
-      const withSupportForPackages = async (runPythonFn) => {
-        const imports = await pyodide._api.pyodide_code.find_imports(input.value).toJs(); // TODO: use public API
-
-        for (name of imports) {
-          await loadDependency(name);
-        }
-
-        await runPythonFn();
-
-        for (name of imports) {
-          await vendoredPackages[name]?.after();
-        }
-      };
-
-      const loadDependency = async (name) => {
-        // If the import is for a vendored package then run its .before() hook.
-        const vendoredPackage = vendoredPackages[name];
-        await vendoredPackage?.before();
-        if (vendoredPackage) { return; }
-
-        // If the import is for a module built into Python then do nothing.
-        let pythonModule;
-        try { pythonModule = pyodide.pyimport(name); } catch(_) { }
-        if (pythonModule) { return; }
-
-        // If the import is for a package built into Pyodide then load it.
-        // Built-ins: https://pyodide.org/en/stable/usage/packages-in-pyodide.html
-        await pyodide.loadPackage(name).catch(() => {});
-        let pyodidePackage;
-        try { pyodidePackage = pyodide.pyimport(name); } catch(_) { }
-        if (pyodidePackage) { return; }
-
-        // Ensure micropip is loaded which can fetch packages from PyPi.
-        // See: https://pyodide.org/en/stable/usage/loading-packages.html
-        if (!pyodide.micropip) {
-          await pyodide.loadPackage("micropip");
-          pyodide.micropip = pyodide.pyimport("micropip");
-        }
-
-        // If the import is for a PyPi package then load it.
-        // Otherwise, don't error now so that we get an error later from Python.
-        await pyodide.micropip.install(name).catch(() => {});
-      };
-
-      const vendoredPackages = {
-        turtle: {
-          before: async () => {
-            pyodide.registerJsModule("basthon", fakeBasthonPackage);
-            await pyodide.loadPackage("./packages/turtle-0.0.1-py3-none-any.whl");
-          },
-          after: () => pyodide.runPython(`
-            import turtle
-            import basthon
-
-            svg = turtle.Screen().show_scene()
-            basthon.kernel.display_event({ "display_type": "turtle", "content": svg })
-            turtle.restart()
-          `),
-        },
-        p5: {
-          before: async () => {
-            pyodide.registerJsModule("basthon", fakeBasthonPackage);
-            await pyodide.loadPackage(["setuptools", "./packages/p5-0.0.1-py3-none-any.whl"]);
-          },
-          after: () => {},
-        },
-        pygal: {
-          before: () => {
-            pyodide.registerJsModule("pygal", { ...pygal });
-            pygal.config.domOutput = (html) => showVisual(html);
-          },
-          after: () => {},
-        },
-        sqlite3: {
-          before: async () => {
-            const response = await fetch("https://cdn.adacomputerscience.org/ada/example_databases/sports_club.sqlite");
-            const buffer = await response.arrayBuffer();
-
-            pyodide.FS.writeFile("sports_club.sqlite", new Uint8Array(buffer));
-          },
-          after: () => {},
-        },
-        sense_hat: {
-          before: async () => {
-            pyodide.registerJsModule("_internal_sense_hat", { ..._internal_sense_hat });
-            await pyodide.loadPackage(["pillow", "./packages/sense_hat-0.0.1-py3-none-any.whl"]);
-
-            _internal_sense_hat.config.pyodide = pyodide;
-            _internal_sense_hat.config.emit = (event, ...args) => console.log(`sense_hat emitted ${event}: ${args}`);
-          },
-          after: () => {
-            const element = document.getElementById("sense_hat_config");
-
-            const { pyodide, ...config } = _internal_sense_hat.config;
-            const json = JSON.stringify(config);
-
-            element.innerHTML = json;
-          },
-        }
-      };
-
-      const fakeBasthonPackage = {
-        kernel: {
-          display_event: (e) => showVisual(e.toJs().get("content")),
-          locals: () => pyodide.runPython("globals()"),
-        },
-      };
-
-      reloadPyodideToClearState();
-      runButton.addEventListener("click", run);
     </script>
   </body>
 </html>
