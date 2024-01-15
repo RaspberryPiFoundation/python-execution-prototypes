@@ -6,8 +6,11 @@
   </head>
   <body>
     <div id="side_by_side" style="display: flex;">
-      <textarea id="stdin" rows="35" style="width: 50%">
+      <textarea id="input" rows="35" style="width: 50%">
 print("Hello, World!")
+
+import sys
+print("Stderr output", file=sys.stderr)
 
 import random
 print("Random number: ", random.randint(1, 10))
@@ -72,33 +75,29 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
     <br/>
     <button id="run" disabled>Run</button>
 
-    <pre id="stdout">Loading pyodide...</pre>
-    <pre id="stderr" style="color: #c00"></pre>
+    <pre id="output">Loading pyodide...</pre>
     <div id="visual" style="width: fit-content;"></div>
 
     <script type="application/javascript">
       const worker = new Worker("webworker.js", { type: "module" });
-      const stdin = document.getElementById("stdin");
-      const stdout = document.getElementById("stdout");
-      const stderr = document.getElementById("stderr");
+      const input = document.getElementById("input");
+      const output = document.getElementById("output");
       const visual = document.getElementById("visual");
       const config = document.getElementById("sense_hat_config");
       const run = document.getElementById("run");
 
       run.addEventListener("click", () => {
-        stdout.innerText = "";
-        stderr.innerText = "";
+        output.innerText = "";
         visual.innerText = "";
         config.innerText = "";
 
-        worker.postMessage({ method: "runPython", python: stdin.value });
+        worker.postMessage({ method: "runPython", python: input.value });
       });
 
       worker.onmessage = async ({ data }) => {
         if (data.method === "handleLoading") { handleLoading(); }
         if (data.method === "handleLoaded") { handleLoaded() }
-        if (data.method === "handleStdout") { handleStdout(data.stdout); }
-        if (data.method === "handleStderr") { handleStderr(data.stderr); }
+        if (data.method === "handleOutput") { handleOutput(data.stream, data.content); }
         if (data.method === "handleVisual") { handleVisual(data.origin, data.content); }
         if (data.method === "handleSenseHatEvent") { handleSenseHatEvent(data.type); }
       };
@@ -108,18 +107,23 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
       };
 
       const handleLoaded = () => {
-        if (stdout.innerText === "Loading pyodide...") {
-          stdout.innerText = "";
+        if (output.innerText === "Loading pyodide...") {
+          output.innerText = "";
           run.disabled = false;
         }
       };
 
-      const handleStdout = (output) => {
-        stdout.innerText += output + "\n";
-      };
+      const handleOutput = (stream, content) => {
+        const pre = document.createElement("pre");
 
-      const handleStderr = (output) => {
-        stderr.innerText += output + "\n";
+        if (stream === "stderr") {
+          pre.style.color = "red";
+        }
+
+        pre.innerText = content || " ";
+        pre.style.margin = 0;
+
+        output.appendChild(pre);
       };
 
       const handleVisual = (origin, content) => {

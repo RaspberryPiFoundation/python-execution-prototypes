@@ -17,8 +17,8 @@ const runPython = async (pyodide, python) => {
     await withSupportForPackages(python, async () => {
       await pyodide.runPython(python);
     });
-  } catch (stderr) {
-    self.postMessage({ method: "handleStderr", stderr });
+  } catch (content) {
+    self.postMessage({ method: "handleOutput", stream: "stderr", content });
   }
 
   await reloadPyodideToClearState();
@@ -138,7 +138,8 @@ const reloadPyodideToClearState = async () => {
   postMessage({ method: "handleLoading" });
 
   pyodidePromise = loadPyodide({
-    stdout: (stdout) => postMessage({ method: "handleStdout", stdout }),
+    stdout: (content) => postMessage({ method: "handleOutput", stream: "stdout", content }),
+    stderr: (content) => postMessage({ method: "handleOutput", stream: "stderr", content }),
   });
 
   await pyodidePromise;
