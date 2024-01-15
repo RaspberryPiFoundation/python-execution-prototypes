@@ -91,6 +91,9 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
       let interruptBuffer;
 
       run.addEventListener("click", () => {
+        run.disabled = true;
+        stop.disabled = false;
+
         output.innerText = "";
         visual.innerText = "";
         config.innerText = "";
@@ -120,10 +123,10 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
 
         if (output.innerText === "Loading pyodide...") {
           output.innerText = "";
-
-          run.disabled = false;
-          stop.disabled = false;
         }
+
+        run.disabled = false;
+        stop.disabled = true;
       };
 
       const handleOutput = (stream, content) => {
