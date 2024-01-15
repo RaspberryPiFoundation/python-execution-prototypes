@@ -4,7 +4,7 @@ import "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
 import * as pygal from "./packages/pygal.js";
 import * as _internal_sense_hat from "./packages/_internal_sense_hat.js";
 
-let pyodide, pyodidePromise;
+let pyodide, pyodidePromise, interruptBuffer;
 
 self.onmessage = async ({ data }) => {
   pyodide = await pyodidePromise;
@@ -142,8 +142,19 @@ const reloadPyodideToClearState = async () => {
     stderr: (content) => postMessage({ method: "handleOutput", stream: "stderr", content }),
   });
 
-  await pyodidePromise;
-  postMessage({ method: "handleLoaded" });
+  const pyodide = await pyodidePromise;
+
+  interruptBuffer ||= new Uint8Array(new SharedArrayBuffer(1));
+  pyodide.setInterruptBuffer(interruptBuffer);
+
+  postMessage({ method: "handleLoaded", interruptBuffer });
 };
+
+if (typeof SharedArrayBuffer === "undefined") {
+  throw new Error(`Please set the following HTTP headers for webworker.js to support the stop button:
+    Cross-Origin-Opener-Policy: same-origin
+    Cross-Origin-Embedder-Policy: require-corp
+  `);
+}
 
 reloadPyodideToClearState();

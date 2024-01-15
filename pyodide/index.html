@@ -74,6 +74,7 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
 
     <br/>
     <button id="run" disabled>Run</button>
+    <button id="stop" disabled>Stop</button>
 
     <pre id="output">Loading pyodide...</pre>
     <div id="visual" style="width: fit-content;"></div>
@@ -85,18 +86,26 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
       const visual = document.getElementById("visual");
       const config = document.getElementById("sense_hat_config");
       const run = document.getElementById("run");
+      const stop = document.getElementById("stop");
+
+      let interruptBuffer;
 
       run.addEventListener("click", () => {
         output.innerText = "";
         visual.innerText = "";
         config.innerText = "";
 
+        interruptBuffer[0] = 0; // Clear previous signals.
         worker.postMessage({ method: "runPython", python: input.value });
+      });
+
+      stop.addEventListener("click", () => {
+        interruptBuffer[0] = 2; // Send a SIGINT signal.
       });
 
       worker.onmessage = async ({ data }) => {
         if (data.method === "handleLoading") { handleLoading(); }
-        if (data.method === "handleLoaded") { handleLoaded() }
+        if (data.method === "handleLoaded") { handleLoaded(data.interruptBuffer) }
         if (data.method === "handleOutput") { handleOutput(data.stream, data.content); }
         if (data.method === "handleVisual") { handleVisual(data.origin, data.content); }
         if (data.method === "handleSenseHatEvent") { handleSenseHatEvent(data.type); }
@@ -106,10 +115,14 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
         // Do nothing.
       };
 
-      const handleLoaded = () => {
+      const handleLoaded = (buffer) => {
+        interruptBuffer = buffer;
+
         if (output.innerText === "Loading pyodide...") {
           output.innerText = "";
+
           run.disabled = false;
+          stop.disabled = false;
         }
       };
 
