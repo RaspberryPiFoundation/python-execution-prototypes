@@ -1,6 +1,4 @@
 import "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
-//import "https://code.highcharts.com/highcharts.js"
-//import "https://code.highcharts.com/modules/accessibility.js"
 import * as pygal from "./packages/pygal.js";
 import * as _internal_sense_hat from "./packages/_internal_sense_hat.js";
 
@@ -106,7 +104,7 @@ const vendoredPackages = {
   pygal: {
     before: () => {
       pyodide.registerJsModule("pygal", { ...pygal });
-      pygal.config.domOutput = (content) => postMessage({ method: "handleVisual", origin: "pygal", content });
+      pygal.config.renderChart = (content) => postMessage({ method: "handleVisual", origin: "pygal", content });
     },
     after: () => {},
   },

@@ -3,6 +3,8 @@
   <head>
     <meta charset="utf-8">
     <title>Pyodide</title>
+    <script crossorigin src="https://code.highcharts.com/highcharts.js"></script>
+    <script crossorigin src="https://code.highcharts.com/modules/accessibility.js"></script>
   </head>
   <body>
     <div id="side_by_side" style="display: flex;">
@@ -147,23 +149,21 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
         // TODO: this isn't working for a couple of different reasons:
         //
         // turtle: cannot import name 'document' from 'js'
-        // pygal: commented out Highcharts and no firstChild sent back from domOutput function
 
         if (!content) { return; }
 
-        if (origin === "sense_hat") {
-          config.innerText = JSON.stringify(content);
-        } else if (content instanceof SVGElement) {
-          // Animations won't play if we append the svg.
-          visual.innerHTML = content.outerHTML;
-        } else if (typeof content === "string") {
-          visual.innerHTML = content;
-        } else {
-          visual.innerHTML = "";
-          visual.appendChild(content);
-        }
+        if (origin === "sense_hat") { config.innerText = JSON.stringify(content); }
+        if (origin === "pygal") { Highcharts.chart(visual, content); }
 
-        return visual.firstChild; // TODO: pygal
+        //if (content instanceof SVGElement) {
+        //  // Animations won't play if we append the svg.
+        //  visual.innerHTML = content.outerHTML;
+        //} else if (typeof content === "string") {
+        //  visual.innerHTML = content;
+        //} else {
+        //  visual.innerHTML = "";
+        //  visual.appendChild(content);
+        //}
       };
 
       const handleSenseHatEvent = () => {
