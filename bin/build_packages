@@ -5,6 +5,10 @@ git clone https://framagit.org/basthon/basthon-kernel.git
 pushd basthon-kernel/packages/kernel-python3/src/modules
 
 for package in *; do
+  if [ "$package" = "turtle" ]; then
+    continue
+  fi
+
   pushd $package
   npm install
   make
@@ -13,6 +17,9 @@ for package in *; do
 done
 
 popd
+
+wget https://github.com/RaspberryPiFoundation/turtle/raw/main/turtle-0.0.1-py3-none-any.whl
+mv turtle*.whl pyodide/packages/
 
 pushd pyodide/packages/sense_hat
 python -m build

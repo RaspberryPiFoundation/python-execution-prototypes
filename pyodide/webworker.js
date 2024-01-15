@@ -87,8 +87,8 @@ const vendoredPackages = {
       import turtle
       import basthon
 
-      svg = turtle.Screen().show_scene()
-      basthon.kernel.display_event({ "display_type": "turtle", "content": svg })
+      svg_dict = turtle.Screen().show_scene()
+      basthon.kernel.display_event({ "display_type": "turtle", "content": svg_dict })
       turtle.restart()
     `),
   },

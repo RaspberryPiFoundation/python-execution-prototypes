@@ -135,9 +135,7 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
       const handleOutput = (stream, content) => {
         const pre = document.createElement("pre");
 
-        if (stream === "stderr") {
-          pre.style.color = "red";
-        }
+        if (stream === "stderr") { pre.style.color = "red"; }
 
         pre.innerText = content || " ";
         pre.style.margin = 0;
@@ -146,25 +144,22 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
       };
 
       const handleVisual = (origin, content) => {
-        // TODO: this isn't working for a couple of different reasons:
-        //
-        // turtle: cannot import name 'document' from 'js'
-
-        if (!content) { return; }
-
         if (origin === "sense_hat") { config.innerText = JSON.stringify(content); }
         if (origin === "pygal") { Highcharts.chart(visual, content); }
-
-        //if (content instanceof SVGElement) {
-        //  // Animations won't play if we append the svg.
-        //  visual.innerHTML = content.outerHTML;
-        //} else if (typeof content === "string") {
-        //  visual.innerHTML = content;
-        //} else {
-        //  visual.innerHTML = "";
-        //  visual.appendChild(content);
-        //}
+        if (origin === "turtle") { visual.innerHTML = elementFromProps(content).outerHTML; }
       };
+
+      const elementFromProps = (map) => {
+        const tag = map.get("tag");
+        if (!tag) { return document.createTextNode(map.get("text")); }
+
+        const node = document.createElement(map.get("tag"));
+
+        for (const [key, value] of map.get("props")) { node.setAttribute(key, value); }
+        for (const childProps of map.get("children")) { node.appendChild(elementFromProps(childProps)); }
+
+        return node;
+      }
 
       const handleSenseHatEvent = () => {
         // Do nothing.
