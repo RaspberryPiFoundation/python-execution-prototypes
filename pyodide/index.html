@@ -104,6 +104,7 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
 
       stop.addEventListener("click", () => {
         interruptBuffer[0] = 2; // Send a SIGINT signal.
+        worker.postMessage({ method: "stopPython" });
       });
 
       worker.onmessage = async ({ data }) => {

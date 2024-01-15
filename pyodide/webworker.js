@@ -4,15 +4,18 @@ import "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
 import * as pygal from "./packages/pygal.js";
 import * as _internal_sense_hat from "./packages/_internal_sense_hat.js";
 
-let pyodide, pyodidePromise, interruptBuffer;
+let pyodide, pyodidePromise, interruptBuffer, stopped;
 
 self.onmessage = async ({ data }) => {
   pyodide = await pyodidePromise;
 
   if (data.method === "runPython") { runPython(pyodide, data.python); }
+  if (data.method === "stopPython") { stopped = true; }
 };
 
 const runPython = async (pyodide, python) => {
+  stopped = false;
+
   try {
     await withSupportForPackages(python, async () => {
       await pyodide.runPython(python);
@@ -24,17 +27,26 @@ const runPython = async (pyodide, python) => {
   await reloadPyodideToClearState();
 };
 
+const checkIfStopped = () => {
+  if (stopped) { throw "KeyboardInterrupt"; }
+};
+
 const withSupportForPackages = async (python, runPythonFn) => {
   const imports = await pyodide._api.pyodide_code.find_imports(python).toJs();
 
   for (name of imports) {
+    checkIfStopped();
     await loadDependency(name);
   }
 
+  checkIfStopped();
   await pyodide.loadPackagesFromImports(python);
+
+  checkIfStopped();
   await runPythonFn();
 
   for (name of imports) {
+    checkIfStopped();
     await vendoredPackages[name]?.after();
   }
 };
