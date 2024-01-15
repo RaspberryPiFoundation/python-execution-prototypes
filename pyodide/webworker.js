@@ -31,11 +31,7 @@ const checkIfStopped = () => {
 
 const withSupportForPackages = async (python, runPythonFn) => {
   const imports = await pyodide._api.pyodide_code.find_imports(python).toJs();
-
-  for (name of imports) {
-    checkIfStopped();
-    await loadDependency(name);
-  }
+  await Promise.all(imports.map(name => loadDependency(name)));
 
   checkIfStopped();
   await pyodide.loadPackagesFromImports(python);
@@ -50,6 +46,8 @@ const withSupportForPackages = async (python, runPythonFn) => {
 };
 
 const loadDependency = async (name) => {
+  checkIfStopped();
+
   // If the import is for a vendored package then run its .before() hook.
   const vendoredPackage = vendoredPackages[name];
   await vendoredPackage?.before();
