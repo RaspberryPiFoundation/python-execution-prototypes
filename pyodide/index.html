@@ -121,7 +121,7 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
         if (data.method === "handleLoading") { handleLoading(); }
         if (data.method === "handleLoaded") { handleLoaded(data.interruptBuffer) }
         if (data.method === "handleOutput") { handleOutput(data.stream, data.content); }
-        if (data.method === "handleError") { handleError(data.line, data.type, data.content); }
+        if (data.method === "handleError") { handleError(data.file, data.line, data.mistake, data.type, data.content); }
         if (data.method === "handleVisual") { handleVisual(data.origin, data.content); }
         if (data.method === "handleSenseHatEvent") { handleSenseHatEvent(data.type); }
       };
@@ -152,11 +152,14 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
         output.appendChild(pre);
       };
 
-      const handleError = (line, type, content) => {
+      const handleError = (file, line, mistake, type, content) => {
         if (type === "KeyboardInterrupt") {
           error.innerText = "Execution interrupted";
         } else {
-          error.innerText = `${type}: ${content} on line ${line}`;
+          const message = [type, content].filter(s => s).join(": ");
+          error.innerText = [message, `on line ${line} of ${file}`].join(" ");
+
+          if (mistake) { error.innerText += `:\n${mistake}`; }
         }
       };
 
