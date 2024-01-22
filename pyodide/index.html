@@ -11,6 +11,9 @@
       <textarea id="input" rows="35" style="width: 50%">
 print("Hello, World!")
 
+import another_file
+print(another_file.hello)
+
 import sys
 print("Stderr output", file=sys.stderr)
 
@@ -102,6 +105,8 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
         error.innerText = "";
         visual.innerText = "";
         config.innerText = "";
+
+        worker.postMessage({ method: "writeFile", name: "another_file.py", content: "hello = 'Hello, another file!'" });
 
         interruptBuffer[0] = 0; // Clear previous signals.
         worker.postMessage({ method: "runPython", python: input.value });

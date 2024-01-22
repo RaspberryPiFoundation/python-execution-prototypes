@@ -7,11 +7,12 @@ let pyodide, pyodidePromise, interruptBuffer, stopped;
 self.onmessage = async ({ data }) => {
   pyodide = await pyodidePromise;
 
-  if (data.method === "runPython") { runPython(pyodide, data.python); }
+  if (data.method === "writeFile") { pyodide.FS.writeFile(data.name, data.content); }
+  if (data.method === "runPython") { runPython(data.python); }
   if (data.method === "stopPython") { stopped = true; }
 };
 
-const runPython = async (pyodide, python) => {
+const runPython = async (python) => {
   stopped = false;
 
   try {
