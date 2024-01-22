@@ -18,15 +18,27 @@ const runPython = async (pyodide, python) => {
     await withSupportForPackages(python, async () => {
       await pyodide.runPython(python);
     });
-  } catch (content) {
-    self.postMessage({ method: "handleOutput", stream: "stderr", content });
+  } catch (error) {
+    if (!(error instanceof pyodide.ffi.PythonError)) { throw error; }
+    self.postMessage({ method: "handleError", ...parsePythonError(error) });
   }
 
   await reloadPyodideToClearState();
 };
 
+const parsePythonError = (error) => {
+  const type = error.type;
+  const [backtrace, content] = error.message.split(`${type}:`);
+
+  const matches = [...backtrace.matchAll(/line (\d+)/g)];
+  const match = matches[matches.length - 1];
+  const line = match ? parseInt(match[1], 10) : null;
+
+  return { line, type, content: content?.trim() }
+};
+
 const checkIfStopped = () => {
-  if (stopped) { throw "KeyboardInterrupt"; }
+  if (stopped) { throw new pyodide.ffi.PythonError("KeyboardInterrupt"); }
 };
 
 const withSupportForPackages = async (python, runPythonFn) => {

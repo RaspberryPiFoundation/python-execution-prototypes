@@ -79,12 +79,14 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
     <button id="stop" disabled>Stop</button>
 
     <pre id="output">Loading pyodide...</pre>
+    <pre id="error" style="color: red"></pre>
     <div id="visual" style="width: fit-content;"></div>
 
     <script type="application/javascript">
       const worker = new Worker("webworker.js", { type: "module" });
       const input = document.getElementById("input");
       const output = document.getElementById("output");
+      const error = document.getElementById("error");
       const visual = document.getElementById("visual");
       const config = document.getElementById("sense_hat_config");
       const run = document.getElementById("run");
@@ -97,6 +99,7 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
         stop.disabled = false;
 
         output.innerText = "";
+        error.innerText = "";
         visual.innerText = "";
         config.innerText = "";
 
@@ -113,6 +116,7 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
         if (data.method === "handleLoading") { handleLoading(); }
         if (data.method === "handleLoaded") { handleLoaded(data.interruptBuffer) }
         if (data.method === "handleOutput") { handleOutput(data.stream, data.content); }
+        if (data.method === "handleError") { handleError(data.line, data.type, data.content); }
         if (data.method === "handleVisual") { handleVisual(data.origin, data.content); }
         if (data.method === "handleSenseHatEvent") { handleSenseHatEvent(data.type); }
       };
@@ -141,6 +145,14 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
         pre.style.margin = 0;
 
         output.appendChild(pre);
+      };
+
+      const handleError = (line, type, content) => {
+        if (type === "KeyboardInterrupt") {
+          error.innerText = "Execution interrupted";
+        } else {
+          error.innerText = `${type}: ${content} on line ${line}`;
+        }
       };
 
       const handleVisual = (origin, content) => {
