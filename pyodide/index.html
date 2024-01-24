@@ -89,7 +89,13 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
     <div id="visual" style="width: fit-content;"></div>
 
     <script type="application/javascript">
-      navigator.serviceWorker.register("serviceworker.js");
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("serviceworker.js").then(registration => {
+          if (!registration.active || !navigator.serviceWorker.controller) {
+            window.location.reload();
+          }
+        });
+      }
 
       const worker = new Worker("webworker.js", { type: "module" });
       const input = document.getElementById("input");
