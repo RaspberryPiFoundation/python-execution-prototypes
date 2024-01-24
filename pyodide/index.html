@@ -155,7 +155,9 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
       };
 
       const handleInput = () => {
-        const content = prompt("Please enter standard input:") || "";
+        const content = prompt("Please enter standard input:");
+        if (!content) { stdinBuffer[0] = -1; return; }
+
         const encoder = new TextEncoder();
         const bytes = encoder.encode(content + "\r\n");
 
