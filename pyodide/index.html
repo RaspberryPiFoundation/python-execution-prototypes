@@ -123,7 +123,7 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
       worker.onmessage = async ({ data }) => {
         if (data.method === "handleLoading") { handleLoading(); }
         if (data.method === "handleLoaded") { handleLoaded(data.stdinBuffer, data.interruptBuffer) }
-        if (data.method === "handleInput") { handleInput(); }
+        if (data.method === "handleInput") { setTimeout(handleInput, 10); }
         if (data.method === "handleOutput") { handleOutput(data.stream, data.content); }
         if (data.method === "handleError") { handleError(data.file, data.line, data.mistake, data.type, data.content); }
         if (data.method === "handleVisual") { handleVisual(data.origin, data.content); }
