@@ -89,6 +89,8 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
     <div id="visual" style="width: fit-content;"></div>
 
     <script type="application/javascript">
+      navigator.serviceWorker.register("serviceworker.js");
+
       const worker = new Worker("webworker.js", { type: "module" });
       const input = document.getElementById("input");
       const output = document.getElementById("output");

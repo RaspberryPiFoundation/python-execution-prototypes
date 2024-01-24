@@ -1,15 +1,3 @@
-#!/usr/bin/env python3
+#!/bin/bash
 
-import http.server
-import socketserver
-
-class MyHandler(http.server.SimpleHTTPRequestHandler):
-    def end_headers(self):
-        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
-        self.send_header("Cross-Origin-Embedder-Policy", "require-corp")
-        super().end_headers()
-
-server = socketserver.TCPServer(("", 8000), MyHandler)
-print(f"Server started on port 8000")
-
-server.serve_forever()
+python -m http.server
