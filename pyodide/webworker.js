@@ -1,3 +1,24 @@
+const supportsAllFeatures = typeof SharedArrayBuffer !== "undefined";
+
+if (!supportsAllFeatures && name !== "incremental-features") {
+  console.warn([
+    "The code editor will not be able to capture standard input or stop execution because these HTTP headers are not set:",
+    "  - Cross-Origin-Opener-Policy: same-origin",
+    "  - Cross-Origin-Embedder-Policy: require-corp",
+    "",
+    "If your app can cope with or without these features, please initialize the web worker with { name: 'incremental-features' } to silence this warning.",
+    "You can then check for the presence of { stdinBuffer, interruptBuffer } in the handleLoaded message to check whether these features are supported.",
+    "",
+    "If you definitely need these features, either configure your server to respond with the HTTP headers above, or register a service worker.",
+    "Once the HTTP headers are set, the browser will block cross-domain resources so you will need to add 'crossorigin' to <script> and other tags.",
+    "You may wish to scope the HTTP headers to only those pages that host the code editor to make the browser restriction easier to deal with.",
+    "",
+    "Please refer to these code snippets for registering a service worker:",
+    "  - https://github.com/RaspberryPiFoundation/python-execution-prototypes/blob/80a512f0942d326460b27c6ff7574887bd14a6c3/pyodide/index.html#L92-L98",
+    "  - https://github.com/RaspberryPiFoundation/python-execution-prototypes/blob/80a512f0942d326460b27c6ff7574887bd14a6c3/pyodide/serviceworker.js",
+  ].join("\n"));
+}
+
 import "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
 import * as pygal from "./packages/pygal.js";
 import * as _internal_sense_hat from "./packages/_internal_sense_hat.js";
@@ -154,12 +175,14 @@ const reloadPyodideToClearState = async () => {
 
   const pyodide = await pyodidePromise;
 
-  stdinBuffer ||= new Int32Array(new SharedArrayBuffer(1024 * 1024)); // 1 MiB
-  stdinBuffer[0] = 1; // Store the length of content in the buffer at index 0.
-  pyodide.setStdin({ isatty: true, read: readFromStdin });
+  if (supportsAllFeatures) {
+    stdinBuffer ||= new Int32Array(new SharedArrayBuffer(1024 * 1024)); // 1 MiB
+    stdinBuffer[0] = 1; // Store the length of content in the buffer at index 0.
+    pyodide.setStdin({ isatty: true, read: readFromStdin });
 
-  interruptBuffer ||= new Uint8Array(new SharedArrayBuffer(1));
-  pyodide.setInterruptBuffer(interruptBuffer);
+    interruptBuffer ||= new Uint8Array(new SharedArrayBuffer(1));
+    pyodide.setInterruptBuffer(interruptBuffer);
+  }
 
   postMessage({ method: "handleLoaded", stdinBuffer, interruptBuffer });
 };
@@ -180,13 +203,6 @@ const readFromStdin = (bufferToWrite) => {
   bufferToWrite.set(addedBytes);
   return addedBytes.length;
 };
-
-if (typeof SharedArrayBuffer === "undefined") {
-  throw new Error(`Please set the following HTTP headers for webworker.js to support stdin and the stop button:
-    Cross-Origin-Opener-Policy: same-origin
-    Cross-Origin-Embedder-Policy: require-corp
-  `);
-}
 
 const parsePythonError = (error) => {
   const type = error.type;

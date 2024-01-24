@@ -11,6 +11,8 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     fetch(event.request).then(response => {
+      // if (!response.url.includes("/some/page/that/hosts/the/editor")) { return; }
+
       const body = response.body;
       const status = response.status;
       const headers = new Headers(response.headers);
