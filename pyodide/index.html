@@ -17,6 +17,9 @@ print(another_file.hello)
 import sys
 print("Stderr output", file=sys.stderr)
 
+name = input()
+print("Hello,", name)
+
 import random
 print("Random number: ", random.randint(1, 10))
 
@@ -119,7 +122,8 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
 
       worker.onmessage = async ({ data }) => {
         if (data.method === "handleLoading") { handleLoading(); }
-        if (data.method === "handleLoaded") { handleLoaded(data.interruptBuffer) }
+        if (data.method === "handleLoaded") { handleLoaded(data.stdinBuffer, data.interruptBuffer) }
+        if (data.method === "handleInput") { handleInput(); }
         if (data.method === "handleOutput") { handleOutput(data.stream, data.content); }
         if (data.method === "handleError") { handleError(data.file, data.line, data.mistake, data.type, data.content); }
         if (data.method === "handleVisual") { handleVisual(data.origin, data.content); }
@@ -130,8 +134,9 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
         // Do nothing.
       };
 
-      const handleLoaded = (buffer) => {
-        interruptBuffer = buffer;
+      const handleLoaded = (stdin, interrupt) => {
+        stdinBuffer = stdin;
+        interruptBuffer = interrupt;
 
         if (output.innerText === "Loading pyodide...") {
           output.innerText = "";
@@ -139,6 +144,18 @@ device.ioctl(SenseHat.SENSE_HAT_FB_FBIOSET_GAMMA, [1] * 32)
 
         run.disabled = false;
         stop.disabled = true;
+      };
+
+      const handleInput = () => {
+        const content = prompt("Please enter standard input:") || "";
+        const encoder = new TextEncoder();
+        const bytes = encoder.encode(content + "\r\n");
+
+        const previousLength = stdinBuffer[0];
+        stdinBuffer.set(bytes, previousLength);
+
+        const currentLength = previousLength + bytes.length;
+        stdinBuffer[0] = currentLength;
       };
 
       const handleOutput = (stream, content) => {

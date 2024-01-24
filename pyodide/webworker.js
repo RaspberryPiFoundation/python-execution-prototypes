@@ -2,7 +2,7 @@ import "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
 import * as pygal from "./packages/pygal.js";
 import * as _internal_sense_hat from "./packages/_internal_sense_hat.js";
 
-let pyodide, pyodidePromise, interruptBuffer, stopped;
+let pyodide, pyodidePromise, stdinBuffer, interruptBuffer, stopped;
 
 self.onmessage = async ({ data }) => {
   pyodide = await pyodidePromise;
@@ -154,14 +154,35 @@ const reloadPyodideToClearState = async () => {
 
   const pyodide = await pyodidePromise;
 
+  stdinBuffer ||= new Int32Array(new SharedArrayBuffer(1024 * 1024)); // 1 MiB
+  stdinBuffer[0] = 1; // Store the length of content in the buffer at index 0.
+  pyodide.setStdin({ isatty: true, read: readFromStdin });
+
   interruptBuffer ||= new Uint8Array(new SharedArrayBuffer(1));
   pyodide.setInterruptBuffer(interruptBuffer);
 
-  postMessage({ method: "handleLoaded", interruptBuffer });
+  postMessage({ method: "handleLoaded", stdinBuffer, interruptBuffer });
+};
+
+const readFromStdin = (bufferToWrite) => {
+  const previousLength = stdinBuffer[0];
+  postMessage({ method: "handleInput" });
+
+  while (true) {
+    checkIfStopped();
+    const result = Atomics.wait(stdinBuffer, 0, previousLength, 100);
+    if (result === "not-equal") { break; }
+  }
+
+  const currentLength = stdinBuffer[0];
+  const addedBytes = stdinBuffer.slice(previousLength, currentLength);
+
+  bufferToWrite.set(addedBytes);
+  return addedBytes.length;
 };
 
 if (typeof SharedArrayBuffer === "undefined") {
-  throw new Error(`Please set the following HTTP headers for webworker.js to support the stop button:
+  throw new Error(`Please set the following HTTP headers for webworker.js to support stdin and the stop button:
     Cross-Origin-Opener-Policy: same-origin
     Cross-Origin-Embedder-Policy: require-corp
   `);
