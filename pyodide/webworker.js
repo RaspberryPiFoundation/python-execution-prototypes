@@ -14,8 +14,8 @@ if (!supportsAllFeatures && name !== "incremental-features") {
     "You may wish to scope the HTTP headers to only those pages that host the code editor to make the browser restriction easier to deal with.",
     "",
     "Please refer to these code snippets for registering a service worker:",
-    "  - https://github.com/RaspberryPiFoundation/python-execution-prototypes/blob/80a512f0942d326460b27c6ff7574887bd14a6c3/pyodide/index.html#L92-L98",
-    "  - https://github.com/RaspberryPiFoundation/python-execution-prototypes/blob/80a512f0942d326460b27c6ff7574887bd14a6c3/pyodide/serviceworker.js",
+    "  - https://github.com/RaspberryPiFoundation/python-execution-prototypes/blob/fd2c50e032cba3bb0e92e19a88eb62e5b120fe7a/pyodide/index.html#L92-L98",
+    "  - https://github.com/RaspberryPiFoundation/python-execution-prototypes/blob/fd2c50e032cba3bb0e92e19a88eb62e5b120fe7a/pyodide/serviceworker.js",
   ].join("\n"));
 }
 
