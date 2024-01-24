@@ -169,7 +169,7 @@ const readFromStdin = (bufferToWrite) => {
   postMessage({ method: "handleInput" });
 
   while (true) {
-    checkIfStopped();
+    pyodide.checkInterrupt();
     const result = Atomics.wait(stdinBuffer, 0, previousLength, 100);
     if (result === "not-equal") { break; }
   }
